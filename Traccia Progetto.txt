@@ -1,0 +1,22 @@
+Avete visto il suo codice (quello di Raffaele Siano):
+
+- sistemate questa cosa, migliorate le query per la creazione dei gruppi e anche altre eventuali query, ad esempio quella sulle TRAIETTORIE che loro hanno sviluppato tutta una serie (coi ragazzi, IANNOTTI&BEVILACQUA), di query per il riconoscimento di persone che inseguono altre persone, però buona parte delle cose le hanno fatte utilizzando codice EMBEDDED (JAVA): è più programmazione che query SPARQL: vedete di realizzarle direttamente come QUERY SPARQL direttamente sul Triple Store;
+
+- Utilizzo di SPIN con Virtuoso: poiché SPIN è supportato da Virtuoso, vedete come scrivere delle regole SPIN da legare direttamente a Virtuoso.
+
+DOMANDA CHRISTIAN: "Dobbiamo interfacciarci su Virtuoso tramite un programma?"
+RISPOSTA PROF. RITROVATO: "In che senso?"
+CHRISTIAN: "Ad esempio utilizzando TopBraid"
+PROF. RITROVATO: "NO! TOPBRAID NON LO DOVETE UTILIZZARE, nel senso che TopBraid funziona con il suo Triple Store. Dovete guardare il codice di Raffaele, dove lui ha già interfacciato e ci sta tutta quanta la parte di software che si legge il file, fa il parse che crea gli oggetti direttamente in Virtuoso. 
+Quello che dovete aggiungere al suo codice è migliorarlo chiaramente: vedrete che nel codice ci sta questa parte per creare i gruppi perché uno delle cose (non so se fatto da LORO o altri ragazzi dell'anno prima) [...] roba sul tracking"
+
+
+RICAPITOLANDO:
+
+"Migliorare le query esistenti e far diventare query, dove possibile (ad esempio le traiettorie) tutta la parte di codice embedded. I ragazzi precedenti hanno considerato le traiettorie costruendosi delle hash map, quindi per fare dei controlli più veloci è preferibile farlo tutto come query SPARQL e vedere l'inserimento di SPIN in Virtuoso, in modo tale da poter scrivere delle query dove è possibile aggiungere delle funzioni SPIN per poter fare, ad esempio, la parte dei gruppi la si potrebbe togliere quella algoritmica e aggiungere delle regole SPIN in modo tale che ogni volta che create un oggetto si attiva la query(?) SPIN, verifica se quella nuova persona può essere un gruppo oppure no oppure se è scomparso qualcuno da un gruppo oppure no ed integrare queste regole all'interno di Virtuoso".
+
+
+TODO (ipse dixit):
+Bisogna cancellare tutta la parte relativa all'HashMap Traiettoria, presente nel metodo createBlob (all'interno di OntPopulation). Dunque, le traiettorie non vanno più calcolate in ram prima dell'inserimento di ciascun blob, ma in fase
+di select da parte dell'utente, sotto forma di query SPARQL. Quando l'utente richiede la traiettoria di uno specifico blob, la query sparql deve ottenere tutti i punti in cui è stato quel blob, e restituisce la traiettoria all'utente
+sotto forma di immagine nella gui java. 

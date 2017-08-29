@@ -54,7 +54,7 @@ public class OntPopulation {
 	/* L'utilitï¿½ di tale struttura dati ï¿½ spiegata all'inizio del metodo "CreateStaticThings" */
 	ArrayList<Rectangle> rect;
 	
-	/* Traiettorie ï¿½ una Mappa che ha come chiave l'id di una persona (Stringa), e come valore
+	/* Traiettorie è una Mappa che ha come chiave l'id di una persona (Stringa), e come valore
 	 *  un ArrayList che rappresenta una traiettoria, ossia un vettore di Punti che vengono rappresentati attraverso
 	 *  un ArrayList di 2 elementi in cui sono inserite le coordinate di quest'ultimi */
 	private HashMap<String, ArrayList<ArrayList<Integer>>> Traiettorie;

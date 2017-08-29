@@ -67,9 +67,11 @@ public class Controller implements ActionListener, MouseListener {
 
 		if (n == 0) {
 			view_init = new View_init(this, this);
+			// Aggiunge definizioni di Classi, DataTypeProperty e ObjectTypeProperty al grafo di Virtuoso
 			new Classes(graph, NS);
 			new DataTypeProperty(graph, NS);
 			new ObjectTypeProperty(graph, NS);
+			
 			ontologyPopulation(view_init, NS, graph, trackingOutputFile, passingAreaTopLeftCorner,
 					passingAreaBottomRightCorner);
 			long endTime = System.currentTimeMillis();
@@ -92,8 +94,11 @@ public class Controller implements ActionListener, MouseListener {
 		try {
 			FileInputStream fileIn = new FileInputStream("src/saved_parameters.ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
+			// Legge dal file l'ArrayList<Object> serializzato
 			e = (ArrayList<Object>) in.readObject();
+			// Ottengo l'iteratore sull'ArrayList<Object>
 			Iterator<Object> iter = e.iterator();
+			// Ottengo i 7 oggetti presenti nell'ArrayList<Object>
 			idBlob = (Integer) iter.next();
 			groupId = (Integer) iter.next();
 			groups = (ArrayList<String>) iter.next();
@@ -104,8 +109,8 @@ public class Controller implements ActionListener, MouseListener {
 			in.close();
 			fileIn.close();
 		} catch (IOException i) {
-			// Se non lo trovo, creo per la prima volta i seguenti oggetti
-			System.out.println("File non trovato");
+			// Se non trovo il file, inizializzo le strutture dati
+			System.out.println("File saved_parameters.ser non trovato");
 			idBlob = 1;
 			groupId = 1;
 			groups = new ArrayList<String>();
