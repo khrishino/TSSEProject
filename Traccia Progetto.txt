@@ -17,6 +17,7 @@ RICAPITOLANDO:
 
 
 TODO (ipse dixit):
-Bisogna cancellare tutta la parte relativa all'HashMap Traiettoria, presente nel metodo createBlob (all'interno di OntPopulation). Dunque, le traiettorie non vanno più calcolate in ram prima dell'inserimento di ciascun blob, ma in fase
-di select da parte dell'utente, sotto forma di query SPARQL. Quando l'utente richiede la traiettoria di uno specifico blob, la query sparql deve ottenere tutti i punti in cui è stato quel blob, e restituisce la traiettoria all'utente
-sotto forma di immagine nella gui java. 
+L'obiettivo primario è quello di eliminare tutte le strutture (collezioni) all'interno della classe OntPopulation. Per fare ciò, ad esempio, bisogna eliminare la HashMap<String, ArrayList<Point>>. 
+Dunque, bisogna eliminare la struttura dati ArrayList<Point> traiettoria_i, che rappresenta la traiettoria del bb.
+Se io elimino questa struttura, come calcolo la traiettoria_i.size() oppure la traiettoria_i.get(index)? Semplice, tramite query SPARQL!
+Dunque, bisogna creare le query SPARQL che ci permettono di eliminare tutte le collezioni all'interno di OntPopulation.

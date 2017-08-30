@@ -79,19 +79,22 @@ public class SparqlQueries {
 						// assegna a xsd l'URI
 						+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
 						// SELECT vuole assegnare un valore a ?personId e a ?frameId
-						+ "SELECT (?personId AS ?ID_Persona) (?frameId AS ?ID_Frame)\n"		
+						+ "SELECT (?personId AS ?ID_Persona) (?frameId AS ?ID_Frame) ?x ?y\n"		
 						+ "FROM <"+GRAPH+">\n"
 						/* WHERE indica il pattern da matchare può contenere + di 1 pattern
 						* e saranno considerati come in AND tra loro, quindi se 1 non trova match,
 						* il risultato complessibo sarà un grafo vuoto! */
 						+ "WHERE {\n"
-									+ "?person tracking:id ?personId.\n"
-									+ "?person a tracking:Person. \n"
-									+ "?blob tracking:isAssociatedWith ?person.\n"
-									+ "?blob a tracking:Blob.\n"
+									+ "?person a tracking:Person;\n"
+									+ "	tracking:id ?personId.\n"
+									+ "?blob tracking:isAssociatedWith ?person;\n"
+									+ "	tracking:hasBoundingBox ?bbox.\n"
+									+ "?bbox tracking:hasCenter ?center.\n"
+									+ "?center tracking:x ?x;\n"
+									+ "	tracking:y ?y.\n"
+									+ "?frame a tracking:Frame;\n"	
+									+ "	tracking:id ?frameId.\n"
 									+ "?blob tracking:seenAtFrame ?frame.\n"
-									+ "?frame a tracking:Frame.\n"	
-									+ "?frame tracking:id ?frameId.\n"
 									+ "FILTER(xsd:integer(?personId) = xsd:integer("+trackingId+"))\n"
 						+ "}\n"
 						// riordina i risultati in ordine crescente/decrescente
@@ -103,7 +106,7 @@ public class SparqlQueries {
 		ResultSetRewindable rewindableResults = ResultSetFactory.copyResults(results);
 		vqe.close();
 		//ResultSetFormatter.out(System.out, rewindableResults);
-		System.out.println(build);
+		//System.out.println(build);
 		return rewindableResults;
 	}
 	

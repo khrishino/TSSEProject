@@ -269,7 +269,7 @@ public class Controller implements ActionListener, MouseListener {
 		// Variabili usate come input alle query
 		String resp1, resp2;
 		int trackingId, choice;
-		float stoppedSeconds, minPermanenceTime, speedTrashold, groupTimeSince;
+		float stoppedSeconds, minPermanenceTime, speedThreshold, groupTimeSince;
 		ArrayList<MyImage> personTrajectory;
 		ArrayList<MyImage> personsSamples;
 		ResultSetRewindable results;
@@ -549,22 +549,22 @@ public class Controller implements ActionListener, MouseListener {
 			view.setButtonsEnabling(false);
 
 			// INPUT PARAMETRI QUERY
-			speedTrashold = -1;
+			speedThreshold = -1;
 			resp1 = null;
 			resp1 = JOptionPane.showInputDialog(view,
 					"Inserire la velocità minima (in metri al secondo) al di sopra della\nquale restituire le velocità medie delle persone (0 per le persone in movimento)",
 					"Query 6", JOptionPane.QUESTION_MESSAGE);
 			if (resp1 != null) {
 				try {
-					speedTrashold = Float.parseFloat(resp1);
+					speedThreshold = Float.parseFloat(resp1);
 				} catch (NumberFormatException exc) {
 					JOptionPane.showMessageDialog(view, "Inserire un valore numerico valido");
 				}
 			}
 
-			if (resp1 != null && speedTrashold > -1) {
+			if (resp1 != null && speedThreshold > -1) {
 				// ESECUZIONE QUERY
-				results = SparqlQueries.query6(graph, speedTrashold);
+				results = SparqlQueries.query6(graph, speedThreshold);
 
 				// VISUALIZZAZIONE DEI RISULTATI
 				if (view.getShowGraphicsState()) {
@@ -581,7 +581,7 @@ public class Controller implements ActionListener, MouseListener {
 				}
 				// Testuale
 				results.reset();
-				stringResults = this.extractStringResult(results, SparqlQueries.QUERY_6, 0, 0, 0, speedTrashold, "");
+				stringResults = this.extractStringResult(results, SparqlQueries.QUERY_6, 0, 0, 0, speedThreshold, "");
 				view.showQueryResults(stringResults);
 			}
 
@@ -902,10 +902,10 @@ public class Controller implements ActionListener, MouseListener {
 			view.setButtonsEnabling(false);
 
 			// INPUT PARAMETRI QUERY
-			speedTrashold = 40;
+			speedThreshold = 40;
 
 			// ESECUZIONE QUERY
-			results = SparqlQueries.query14(graph, speedTrashold);
+			results = SparqlQueries.query14(graph, speedThreshold);
 
 			// VISUALIZZAZIONE DEI RISULTATI
 			if (view.getShowGraphicsState()) {
@@ -922,7 +922,7 @@ public class Controller implements ActionListener, MouseListener {
 			}
 			// Testuale
 			results.reset();
-			stringResults = this.extractStringResult(results, SparqlQueries.QUERY_14, 0, 0, 0, speedTrashold, "");
+			stringResults = this.extractStringResult(results, SparqlQueries.QUERY_14, 0, 0, 0, speedThreshold, "");
 			view.showQueryResults(stringResults);
 
 			view.setButtonsEnabling(true);
