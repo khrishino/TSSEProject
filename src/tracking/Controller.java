@@ -129,7 +129,7 @@ public class Controller implements ActionListener, MouseListener {
 		// - creazione di blob
 		// - creazione dei BoundingBox
 		OntPopulation op = new OntPopulation(graph, NS, trackingOutputFile, groupId, groups, lastPersonDirection,
-				samePersonDirectionFrames, directionChanges, Traiettorie);
+				samePersonDirectionFrames, directionChanges);
 
 		// Creazione oggetti statici della scena (le varie aree, occluding
 		// object ecc...)
@@ -199,7 +199,7 @@ public class Controller implements ActionListener, MouseListener {
 						vur.exec();
 
 						/*
-						 * Fatto ciÃ², analizzo le righe successive per leggere
+						 * Fatto ciò, analizzo le righe successive per leggere
 						 * gli id delle persone e le coordinate dei blob a esse
 						 * associate
 						 */
@@ -1203,6 +1203,7 @@ public class Controller implements ActionListener, MouseListener {
 					image = ImageIO.read(new File("images//frame_0" + nameFile + ".jpg"));
 				} catch (IOException e1) {
 					e1.printStackTrace();
+					System.out.println("Nome del file: "+nameFile);
 				}
 			} else {
 				// non carica il frame
@@ -1245,7 +1246,7 @@ public class Controller implements ActionListener, MouseListener {
 		StringBuffer string = new StringBuffer("Risultato della query 4\n\n");
 
 		string.append(
-				"Le persone che sono rimaste ferme nella scena per piÃ¹ di " + stoppedSeconds + " secondi sono:\n\n");
+				"Le persone che sono rimaste ferme nella scena per più di " + stoppedSeconds + " secondi sono:\n\n");
 
 		for (Integer personId : stoppedPerson.keySet()) {
 			string.append("la persona " + personId + "\t per " + stoppedPerson.get(personId).getSeconds()
@@ -1284,7 +1285,7 @@ public class Controller implements ActionListener, MouseListener {
 			rect = null;
 			qs = results.next();
 			string.append("La persona " + qs.get("ID_Persona").asLiteral().getInt());
-			string.append(" Ã¨ nella scena dal frame " + qs.get("ID_Frame").asLiteral().getInt());
+			string.append(" è nella scena dal frame " + qs.get("ID_Frame").asLiteral().getInt());
 			while (results.hasNext()) {
 				qs = results.next();
 			}

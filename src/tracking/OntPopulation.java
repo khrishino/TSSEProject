@@ -13,6 +13,8 @@ import java.util.Map;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
@@ -53,23 +55,15 @@ public class OntPopulation {
 	private final int oldGroupThreshold = 14;
 
 	/*
-	 * L'utilitÔøΩ di tale struttura dati ÔøΩ spiegata all'inizio del metodo
+	 * L'utilit‡ di tale struttura dati Ë spiegata all'inizio del metodo
 	 * "CreateStaticThings"
 	 */
 	ArrayList<Rectangle> rect;
 
-	/*
-	 * Traiettorie Ë una Mappa che ha come chiave l'id di una persona (Stringa), e
-	 * come valore un ArrayList che rappresenta una traiettoria, ossia un vettore di
-	 * Punti che vengono rappresentati attraverso un ArrayList di 2 elementi in cui
-	 * sono inserite le coordinate di quest'ultimi
-	 */
-	private HashMap<String, ArrayList<ArrayList<Integer>>> Traiettorie;
-
 	/* Costruttore */
 	public OntPopulation(VirtGraph graph, String NS, String trackingOutputFile, int groupId, ArrayList<String> groups,
 			HashMap<Integer, String> lastPersonDirection, HashMap<Integer, Integer> samePersonDirectionFrames,
-			HashMap<Integer, Integer> directionChanges, HashMap<String, ArrayList<ArrayList<Integer>>> Traiettorie) {
+			HashMap<Integer, Integer> directionChanges) {
 		this.graph = graph;
 		this.NS = NS;
 		this.trackingOutputFile = trackingOutputFile;
@@ -81,7 +75,6 @@ public class OntPopulation {
 		this.lastPersonDirection = lastPersonDirection;
 		this.samePersonDirectionFrames = samePersonDirectionFrames;
 		this.directionChanges = directionChanges;
-		this.Traiettorie = Traiettorie;
 	}
 
 	public void createPassingArea(Point bottomRight, Point topLeft) {
@@ -115,7 +108,7 @@ public class OntPopulation {
 		graph.add(new Triple(s3, p3, o3));
 
 		/*
-		 * Definisco un rettangolo che torner√† utile per il controllo dell'intersezione
+		 * Definisco un rettangolo che torner‡† utile per il controllo dell'intersezione
 		 * di un BoundingBox con una specifia area
 		 */
 		int width = topRight.x - topLeft.x;
@@ -375,15 +368,11 @@ public class OntPopulation {
 		Node o8 = NodeFactory.createURI(NS + "Blob");
 		graph.add(new Triple(s8, p8, o8));
 
-		// Definizione della persona, senza per√≤ inizializzarla
+		// Definizione della persona, senza perÚ inizializzarla
 		// Individual iPerson = null;
 
-		/* servir√† per settare la traiettoria del boundingbox i-esimo */
-		ArrayList<ArrayList<Integer>> traiettoria_i;
-		/* il punto i-esimo della traiettoria i-esima */
-		ArrayList<Integer> punto_i = new ArrayList<>(2);
-		punto_i.add(center.x);
-		punto_i.add(center.y);
+		/* Servir‡†per settare la traiettoria del boundingbox i-esimo */
+		ArrayList<ArrayList<Integer>> traiettoria_i = new ArrayList<>();
 
 		String direction = "";
 		Float speed = 0f;
@@ -396,10 +385,10 @@ public class OntPopulation {
 		boolean personIgnored = false;
 
 		/*
-		 * Se √® la prima volta che appare questa persona: - avr√† la propriet√†
+		 * Se Ë la prima volta che appare questa persona: - avr‡†la propriet‡
 		 * "firstSeenAt" - non ha direzione (viene calcolata rispetto al frame
-		 * precedente), e quindi verr√† settata "hasDirection" a "stopped" - lo stesso
-		 * per la propriet√† "hasSpeed" messa a "0"
+		 * precedente), e quindi verr‡† settata "hasDirection" a "stopped" - lo stesso
+		 * per la propriet‡ "hasSpeed" messa a "0"
 		 */
 		Node s9 = NodeFactory.createURI(NS + "Person" + temp2[0]);
 		Node p9 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
@@ -440,7 +429,7 @@ public class OntPopulation {
 				Node o13 = NodeFactory.createURI(NS + "Blob" + individual_id);
 				graph.add(new Triple(s13, p13, o13));
 
-				// Imposto i valori per le propriet√† del blob
+				// Imposto i valori per le propriet‡† del blob
 				direction = "stopped";
 				speed = 0.0f;
 				time = 0.0f;
@@ -462,7 +451,7 @@ public class OntPopulation {
 				vur = VirtuosoUpdateFactory.create(str, graph);
 				vur.exec();
 
-				// Assegnazione propriet√† colore all'individuo di classe Persona
+				// Assegnazione propriet‡† colore all'individuo di classe Persona
 				if (Integer.parseInt(temp2[0]) == 75 || Integer.parseInt(temp2[0]) == 102
 						|| Integer.parseInt(temp2[0]) == 83 || Integer.parseInt(temp2[0]) == 108) {
 					str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "red> <" + NS + "hasDominatColor> 'red'}";
@@ -494,18 +483,6 @@ public class OntPopulation {
 					Node o19 = NodeFactory.createURI(NS + "black");
 					graph.add(new Triple(s19, p19, o19));
 				}
-
-				/*
-				 * Dato che √® la prima volta che appare tale persona inizializzo l'ArrayList
-				 * relativa alla sua Traiettoria e vi aggiungo il primo punto
-				 */
-				traiettoria_i = new ArrayList<>();
-				traiettoria_i.add(punto_i);
-				/*
-				 * MANTENGO TRACCIA DELLA TRAIETTORIA ASSOCIANDO QUEST'ULTIMA ALL'ID DELLA
-				 * PERSONA
-				 */
-				Traiettorie.put(temp2[0], traiettoria_i);
 			} else {
 				personIgnored = true;
 				// System.out.println("Individuo ignorato"+temp2[0]);
@@ -514,7 +491,7 @@ public class OntPopulation {
 			// Creo l'individuo persona
 			graph.add(new Triple(s9, p9, o9));
 
-			// Setto le opportune propriet√† dell'individuo persona
+			// Setto le opportune propriet‡† dell'individuo persona
 			str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Person> <" + NS + "id> '" + temp2[0] + "'}";
 			vur = VirtuosoUpdateFactory.create(str, graph);
 			vur.exec();
@@ -530,24 +507,54 @@ public class OntPopulation {
 			graph.add(new Triple(s12, p12, o12));
 
 			/* "getto" la traiettoria relativa a quel boundingbox */
-			traiettoria_i = Traiettorie.get(temp2[0]);
+			String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n"
+					+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
+					+ "SELECT ?x ?y \n"		
+					+ "FROM <"+GRAPH+">\n"
+					+ "WHERE {\n"
+								+ "?person tracking:id \""+ temp2[0] +"\".\n"
+								+ "?blob tracking:isAssociatedWith ?person;\n"
+								+ "	tracking:hasBoundingBox ?bbox.\n"
+								+ "?bbox tracking:hasCenter ?center.\n"
+								+ "?center tracking:x ?x;\n"
+								+ "	tracking:y ?y.\n"
+								+ "?frame a tracking:Frame;\n"	
+								+ "	tracking:id ?frameId.\n"
+								+ "?blob tracking:seenAtFrame ?frame.\n"
+					+ "}\n"
+					+ "ORDER BY xsd:integer(?frameId)\n";
+
+			Query sparql = QueryFactory.create(build);
+			VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+			ResultSet results = vqe.execSelect();
+			
+			while(results.hasNext()) {
+				QuerySolution qn = results.next();
+				int x = qn.get("x").asLiteral().getInt();
+				int y = qn.get("y").asLiteral().getInt();
+				System.out.println(x + " " + y);
+				ArrayList<Integer> point = new ArrayList<>();
+				point.add(x);
+				point.add(y);
+				traiettoria_i.add(point);
+			}	
+			vqe.close();
 
 			/* prendo il punto precedente per calcolare la direzione */
 			ArrayList<Integer> temp = traiettoria_i.get(traiettoria_i.size() - 1);
 			Point prec = new Point(temp.get(0), temp.get(1));
 
 			/* poi prelevo il successivo (ossia quella attuale) */
-			Point post = new Point(punto_i.get(0), punto_i.get(1));
+			Point post = new Point(center.x, center.y);
 
-			// Imposto i valori per le propriet√† del blob
+			// Imposto i valori per le propriet‡† del blob
 			direction = Functions.getDirection(prec, post);
 			speed = Functions.Speed(prec, post);
 			time = (float) traiettoria_i.size() * 0.14f;
 
 			// popolo le hash map per la gestione dei cambi di direzione / frame di stessa
 			// direzione
-			samePersonDirectionFrames.put(Integer.parseInt(temp2[0]),
-					samePersonDirectionFrames.get(Integer.parseInt(temp2[0])) + 1);
+			samePersonDirectionFrames.put(Integer.parseInt(temp2[0]), samePersonDirectionFrames.get(Integer.parseInt(temp2[0])) + 1);
 			str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Blob" + individual_id + "> <" + NS
 					+ "sameDirectionFrames> '" + samePersonDirectionFrames.get(Integer.parseInt(temp2[0])) + "'}";
 			vur = VirtuosoUpdateFactory.create(str, graph);
@@ -586,12 +593,6 @@ public class OntPopulation {
 					newPersonDirection.remove(Integer.parseInt(temp2[0]));
 				}
 			}
-
-			/* aggiorno la traiettoria i-esima */
-			traiettoria_i.add(punto_i);
-
-			/* rimpiazzo con quella aggiornata */
-			//Traiettorie.put(temp2[0], traiettoria_i);
 		}
 
 		// Setto le restanti propriet√† a blob e boundingBox
@@ -615,7 +616,9 @@ public class OntPopulation {
 		Node o13 = NodeFactory.createURI(NS + "CenterPointBlob" + individual_id);
 		graph.add(new Triple(s13, p13, o13));
 
-		// Setto la propriet√† di blob malformato
+		
+		
+		// Setto la propriet‡† di blob malformato
 		if (!lowerLimitRespect) {
 			str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Blob" + individual_id + "> <" + NS
 					+ "malformedBlob> 'true'}";
@@ -623,7 +626,7 @@ public class OntPopulation {
 			vur.exec();
 		}
 
-		// Se la persona non √® stata ignorata (e quindi sono stati calcolati
+		// Se la persona non Ë stata ignorata (e quindi sono stati calcolati
 		// gli opportuni valori) setto queste propriet√† al blob
 		if (!personIgnored) {
 			// Setto l'associazione tra blob e persona
@@ -661,7 +664,7 @@ public class OntPopulation {
 			vur.exec();
 		}
 
-		// Setto la propriet√† di probabile gruppo
+		// Setto la propriet‡† di probabile gruppo
 		if (!upperLimitRespect) {
 			if (trackingOutputFile.equals("src//view1.txt")) {
 				str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Person" + temp2[0] + "> <" + NS
@@ -1184,19 +1187,18 @@ public class OntPopulation {
 		}
 	}
 
-	/* Attraverso tale metodo creo tutti gli oggetti statici della scena */
-	/* l'id lo scegliamo noi tanto tali oggetti sono statici */
-	/*
-	 * Anche in questo caso, definisco prima i vertici dei boundingBoxes, poi i
-	 * boundingBoxes e poi le Aree e gli occludingObjects
+	/* Attraverso tale metodo creo tutti gli oggetti statici della scena: 
+	 * l'id lo scegliamo noi tanto tali oggetti sono statici.
+	 * Anche in questo caso, definisco prima i vertici dei BoundingBoxes, poi i
+	 * boundingBoxes e poi le Aree e gli occludingObjects.
 	 */
 
 	/*
-	 * NOTA IMPORTANTE: tale metodo ritorna un Array di rettangoli che rappresentano
-	 * le aree relative alle Entry,Exit e Occluding Area; ciÔøΩ viene fatto siccome
-	 * in questo modo abbiamo possibilitÔøΩ di conoscere facilmente se un punto (il
-	 * centro del BoundingBox relativo alla perosna i-esima) ÔøΩ presente
-	 * all'interno di tali Aree.
+	 * NOTA IMPORTANTE: tale metodo restituisce un Array di rettangoli che rappresentano
+	 * le aree relative alle Entry, Exit e Occluding Area; ciÚ viene fatto dato che
+	 * in questo modo abbiamo possibilit‡ di conoscere facilmente se un punto (il
+	 * centro del BoundingBox relativo alla persona i-esima) Ë presente
+	 * all'interno di tali aree.
 	 */
 	public ArrayList<Rectangle> createStaticThings() {
 		VirtuosoUpdateRequest vur;
@@ -1243,7 +1245,7 @@ public class OntPopulation {
 		graph.add(new Triple(s4, p4, o4));
 
 		/*
-		 * Definisco un rettangolo che tornerÔøΩ utile per il controllo
+		 * Definisco un rettangolo che torner‡ utile per il controllo
 		 * dell'intersezione di un BoundingBox con una specifia area
 		 */
 		int width = topRight.x - topLeft.x;
@@ -1664,7 +1666,6 @@ public class OntPopulation {
 		param.add(this.lastPersonDirection);
 		param.add(this.samePersonDirectionFrames);
 		param.add(this.directionChanges);
-		param.add(this.Traiettorie);
 
 		try {
 			FileOutputStream fileOut = new FileOutputStream("src/saved_parameters.ser");
