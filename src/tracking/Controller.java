@@ -49,7 +49,6 @@ public class Controller implements ActionListener, MouseListener {
 	private ArrayList<String> groups;
 	private HashMap<Integer, String> lastPersonDirection;
 	private HashMap<Integer, Integer> directionChanges, samePersonDirectionFrames;
-	private HashMap<String, ArrayList<ArrayList<Integer>>> Traiettorie;
 
 	public Controller() {
 		passingAreaTopLeftCorner = new Point(530, 95);
@@ -105,7 +104,6 @@ public class Controller implements ActionListener, MouseListener {
 			lastPersonDirection = (HashMap<Integer, String>) iter.next();
 			samePersonDirectionFrames = (HashMap<Integer, Integer>) iter.next();
 			directionChanges = (HashMap<Integer, Integer>) iter.next();
-			Traiettorie = (HashMap<String, ArrayList<ArrayList<Integer>>>) iter.next();
 			in.close();
 			fileIn.close();
 		} catch (IOException i) {
@@ -117,8 +115,7 @@ public class Controller implements ActionListener, MouseListener {
 			lastPersonDirection = new HashMap<Integer, String>();
 			samePersonDirectionFrames = new HashMap<Integer, Integer>();
 			directionChanges = new HashMap<Integer, Integer>();
-			Traiettorie = new HashMap<String, ArrayList<ArrayList<Integer>>>();
-		} catch (ClassNotFoundException c) {
+			} catch (ClassNotFoundException c) {
 			System.out.println("Class not found");
 			c.printStackTrace();
 			return;

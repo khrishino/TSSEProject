@@ -17,6 +17,9 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
@@ -371,9 +374,6 @@ public class OntPopulation {
 		// Definizione della persona, senza però inizializzarla
 		// Individual iPerson = null;
 
-		/* Servirà per settare la traiettoria del boundingbox i-esimo */
-		ArrayList<ArrayList<Integer>> traiettoria_i = new ArrayList<>();
-
 		String direction = "";
 		Float speed = 0f;
 		Float time = 0f;
@@ -488,14 +488,6 @@ public class OntPopulation {
 				// System.out.println("Individuo ignorato"+temp2[0]);
 			}
 		} else {
-			// Creo l'individuo persona
-			graph.add(new Triple(s9, p9, o9));
-
-			// Setto le opportune proprietà  dell'individuo persona
-			str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Person> <" + NS + "id> '" + temp2[0] + "'}";
-			vur = VirtuosoUpdateFactory.create(str, graph);
-			vur.exec();
-
 			Node s11 = NodeFactory.createURI(NS + "Person" + temp2[0]);
 			Node p11 = NodeFactory.createURI(NS + "hasBoundingBox");
 			Node o11 = NodeFactory.createURI(NS + "BoundingBox" + individual_id);
@@ -509,7 +501,7 @@ public class OntPopulation {
 			/* "getto" la traiettoria relativa a quel boundingbox */
 			String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n"
 					+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
-					+ "SELECT ?x ?y \n"		
+					+ "SELECT ?x ?y\n"		
 					+ "FROM <"+GRAPH+">\n"
 					+ "WHERE {\n"
 								+ "?person tracking:id \""+ temp2[0] +"\".\n"
@@ -522,27 +514,26 @@ public class OntPopulation {
 								+ "	tracking:id ?frameId.\n"
 								+ "?blob tracking:seenAtFrame ?frame.\n"
 					+ "}\n"
-					+ "ORDER BY xsd:integer(?frameId)\n";
-
+					+ "ORDER BY DESC (xsd:integer(?frameId))";
+			
 			Query sparql = QueryFactory.create(build);
 			VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 			ResultSet results = vqe.execSelect();
+	
+			// Ottengo l'ultimo punto della traiettoria (cioè quello precedente a quello che si sta per inserire)
+			QuerySolution qn = results.next();
+			int x = qn.get("x").asLiteral().getInt();
+			int y = qn.get("y").asLiteral().getInt();
+			Point prec = new Point(x, y);
 			
+			// Ottengo il numero di punti presenti nella traiettoria
+			int numPoints = 1;
 			while(results.hasNext()) {
-				QuerySolution qn = results.next();
-				int x = qn.get("x").asLiteral().getInt();
-				int y = qn.get("y").asLiteral().getInt();
-				System.out.println(x + " " + y);
-				ArrayList<Integer> point = new ArrayList<>();
-				point.add(x);
-				point.add(y);
-				traiettoria_i.add(point);
-			}	
+				numPoints++;
+				results.next();
+			}
+			
 			vqe.close();
-
-			/* prendo il punto precedente per calcolare la direzione */
-			ArrayList<Integer> temp = traiettoria_i.get(traiettoria_i.size() - 1);
-			Point prec = new Point(temp.get(0), temp.get(1));
 
 			/* poi prelevo il successivo (ossia quella attuale) */
 			Point post = new Point(center.x, center.y);
@@ -550,7 +541,7 @@ public class OntPopulation {
 			// Imposto i valori per le proprietà  del blob
 			direction = Functions.getDirection(prec, post);
 			speed = Functions.Speed(prec, post);
-			time = (float) traiettoria_i.size() * 0.14f;
+			time = (float) numPoints * 0.14f;
 
 			// popolo le hash map per la gestione dei cambi di direzione / frame di stessa
 			// direzione
