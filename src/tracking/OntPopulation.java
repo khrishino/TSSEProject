@@ -510,9 +510,8 @@ public class OntPopulation {
 								+ "?bbox tracking:hasCenter ?center.\n"
 								+ "?center tracking:x ?x;\n"
 								+ "	tracking:y ?y.\n"
-								+ "?frame a tracking:Frame;\n"	
-								+ "	tracking:id ?frameId.\n"
 								+ "?blob tracking:seenAtFrame ?frame.\n"
+								+ "?frame tracking:id ?frameId.\n"
 					+ "}\n"
 					+ "ORDER BY DESC (xsd:integer(?frameId))";
 			
