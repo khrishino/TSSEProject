@@ -814,8 +814,7 @@ public class SparqlQueries {
 		return rewindableResults;
 		 
 	}
-	
-	
+		
 	public static Rectangle getPersonAtFrameRectangle(VirtGraph graph, int personId, int frameId){
 		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n "
 						+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n "

@@ -21,3 +21,13 @@ L'obiettivo primario è quello di eliminare tutte le strutture (collezioni) all'i
 Dunque, bisogna eliminare la struttura dati ArrayList<Point> traiettoria_i, che rappresenta la traiettoria del bb.
 Se io elimino questa struttura, come calcolo la traiettoria_i.size() oppure la traiettoria_i.get(index)? Semplice, tramite query SPARQL!
 Dunque, bisogna creare le query SPARQL che ci permettono di eliminare tutte le collezioni all'interno di OntPopulation.
+
+Qual è la differenza tra la INSERT e la graph.add(tripla)? Da quanto ho capito la insert permette di aggiungere un dato concreto, mentre la add permette di aggiungere definizioni.
+
+Cosa ho fatto:
+1) Reso il codice meno ridondante con l'aggiunta dei metodi addTriple e performInsert
+2) Effettuato il parsing dei valori letti dal file view1.txt una sola volta (all'inizio del metodo createBlob)
+3) Migliorate le performance sull'hashmap samePersonDirectionFrames effettuando la get una sola volta e anche sulla hashmap directionChanges
+4) Modificato il valore di ritorno di createBlolb da String a void in quanto totalmente inutile (il valore restituito può essere calcolato dal chiamante anche senza la funzione stessa)
+5) Fixato il problema nella GUI delle scritte iniziali che si sputtanavano
+6) Aggiustati molti caratteri accentati non codificati correttamente

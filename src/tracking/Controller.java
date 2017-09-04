@@ -122,7 +122,7 @@ public class Controller implements ActionListener, MouseListener {
 			return;
 		}
 
-		// Inizializzazione classe che si occuper√† di:
+		// Inizializzazione classe che si occuper‡ di:
 		// - creazione di oggetti statici
 		// - creazione di blob
 		// - creazione dei BoundingBox
@@ -160,7 +160,7 @@ public class Controller implements ActionListener, MouseListener {
 			while (line != null) {
 				/*
 				 * Se la linea contiene la parola chiave "Frame" estraggo il suo
-				 * id ed entro in un nuovo ciclo interno in cui estrarr√≤ tutti
+				 * id ed entro in un nuovo ciclo interno in cui estrarr‡ tutti
 				 * gli id delle persone e le coordinate relative ai punti
 				 * topLeft e topRight [espressi con la convenzione (y,x)] del
 				 * Blob associato ad esse
@@ -187,10 +187,10 @@ public class Controller implements ActionListener, MouseListener {
 
 						view_init.showQueryResults("Analisi del frame " + extracted_id + " in corso\n");
 
-						/* Creo l'istanza relativa al Frame */
+						// Creo l'istanza relativa al Frame
 						graph.add(new Triple(s1, p1, o1));
 
-						/* richiamo la propriet‡ id associata al Frame */
+						// Richiamo la propriet‡ id associata al Frame
 						str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Frame" + extracted_id + "> <" + NS
 								+ "id> '" + extracted_id + "'}";
 						vur = VirtuosoUpdateFactory.create(str, graph);
@@ -203,16 +203,6 @@ public class Controller implements ActionListener, MouseListener {
 						 */
 						line = bufferedReader.readLine();
 						while (!line.contains("Frame")) {
-
-							/*
-							 * in temp2 andranno i seguenti valori: temp2[0] =
-							 * id del Blob (che e' anche quello del BoundingBox)
-							 * temp2[1] = coordinata y del vertice topLeft
-							 * temp2[2] = coordinata x del vertice topLeft
-							 * temp2[3] = coordinata y del vertice bottomRight
-							 * temp2[4] = coordinata x del vertice bottomRight
-							 */
-
 							String[] txtRowInfo = line.split("	");
 							
 							/*
@@ -438,7 +428,7 @@ public class Controller implements ActionListener, MouseListener {
 			stoppedSeconds = -1;
 			resp1 = null;
 			resp1 = JOptionPane.showInputDialog(view,
-					"Inserire il minimo tempo (in secondi)\ndi staticit√† continuata per le persone nella scena",
+					"Inserire il minimo tempo (in secondi)\ndi staticit‡ continuata per le persone nella scena",
 					"Query 4", JOptionPane.QUESTION_MESSAGE);
 			if (resp1 != null) {
 				try {
