@@ -98,6 +98,7 @@ public class Controller implements ActionListener, MouseListener {
 			// Ottengo l'iteratore sull'ArrayList<Object>
 			Iterator<Object> iter = e.iterator();
 			// Ottengo i 7 oggetti presenti nell'ArrayList<Object>
+			// idBlob consiste nel numero di bounding box presenti nel file view1.txt
 			idBlob = (Integer) iter.next();
 			groupId = (Integer) iter.next();
 			groups = (ArrayList<String>) iter.next();
@@ -144,7 +145,7 @@ public class Controller implements ActionListener, MouseListener {
 		// Collezione delle persone inserite ad un certo frame
 		ArrayList<String> peopleOfAFrame = new ArrayList<String>();
 
-		// Verr√† analizzata una riga per volta del file contenente l'output
+		// Verr‡ analizzata una riga per volta del file contenente l'output
 		// dell'algoritmo di tracking
 		String line = null;
 		try {
@@ -189,7 +190,7 @@ public class Controller implements ActionListener, MouseListener {
 						/* Creo l'istanza relativa al Frame */
 						graph.add(new Triple(s1, p1, o1));
 
-						/* richiamo la propriet√† id associata al Frame */
+						/* richiamo la propriet‡ id associata al Frame */
 						str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Frame" + extracted_id + "> <" + NS
 								+ "id> '" + extracted_id + "'}";
 						vur = VirtuosoUpdateFactory.create(str, graph);
@@ -223,7 +224,8 @@ public class Controller implements ActionListener, MouseListener {
 							 * esso
 							 */
 
-							String person = op.createBlob("" + idBlob, temp2, NS + "Frame" + extracted_id);
+							// idBlob rappresenta il numero di bounding box presenti nel file view1.txt
+							String person = op.createBlob(Integer.toString(idBlob), temp2, NS + "Frame" + extracted_id);
 							peopleOfAFrame.add(person);
 							idBlob++;
 

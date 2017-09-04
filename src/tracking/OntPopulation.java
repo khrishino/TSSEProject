@@ -17,9 +17,6 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFactory;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
@@ -36,9 +33,13 @@ public class OntPopulation {
 	private ArrayList<String> groups;
 	private int groupId;
 
+	// L'ultima direzione delle persone (idPersona, ultimaDirezione)
 	private Map<Integer, String> lastPersonDirection;
+	// Memorizza il numero di frame della stessa direzione delle persone (idPersona, numFramesStessaDirezione)
 	private Map<Integer, Integer> samePersonDirectionFrames;
+	// Memorizza il numero di cambi di direzione delle persone (idPersona, cambiamentiDirezione)
 	private Map<Integer, Integer> directionChanges;
+	// Memorizza il numero di cambi di direzione delle persone (arrivati a 8 si incrementa di 1 il valore in directionChanges)
 	private Map<Integer, Integer> newPersonDirection;
 	boolean directionChanged;
 
@@ -307,11 +308,10 @@ public class OntPopulation {
 		return same;
 	}
 
-	// temp2 = {bbID, topLeft.y, topLeft.x, bottomRight.y, bottomRight.x}
-	public String createBlob(String individual_id, String[] temp2 /* id BoundingBox + coordinate vertici TL e BR */,
-			String idFrame) {
+	// temp2 = {personID, topLeft.y, topLeft.x, bottomRight.y, bottomRight.x}
+	public String createBlob(String individual_id, String[] temp2, String idFrame) {
 		Triple t = null;
-		ExtendedIterator iter = null;
+		ExtendedIterator<?> iter = null;
 		String str;
 		VirtuosoUpdateRequest vur;
 
@@ -327,7 +327,7 @@ public class OntPopulation {
 		Node o1 = NodeFactory.createURI(NS + "BoundingBox");
 		graph.add(new Triple(s1, p1, o1));
 
-		// Settaggio delle proprietÃ  dell'individuo boundingBox
+		// Settaggio delle proprietà dell'individuo boundingBox
 		setBoundingBox(NS + "BoundingBox" + individual_id, individual_id, topLeft, topRight, bottomRight, bottomLeft);
 
 		// Creazione individui della classe RGBColor
@@ -451,7 +451,7 @@ public class OntPopulation {
 				vur = VirtuosoUpdateFactory.create(str, graph);
 				vur.exec();
 
-				// Assegnazione proprietà  colore all'individuo di classe Persona
+				// Assegnazione proprietà colore all'individuo di classe Persona
 				if (Integer.parseInt(temp2[0]) == 75 || Integer.parseInt(temp2[0]) == 102
 						|| Integer.parseInt(temp2[0]) == 83 || Integer.parseInt(temp2[0]) == 108) {
 					str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "red> <" + NS + "hasDominatColor> 'red'}";
@@ -498,7 +498,7 @@ public class OntPopulation {
 			Node o12 = NodeFactory.createURI(NS + "Blob" + individual_id);
 			graph.add(new Triple(s12, p12, o12));
 
-			/* "getto" la traiettoria relativa a quel boundingbox */
+			// Ottengo i punti della traiettoria relativa alla persona (in ordine discendente sull'idFrame)
 			String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n"
 					+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
 					+ "SELECT ?x ?y\n"		
@@ -519,7 +519,7 @@ public class OntPopulation {
 			VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 			ResultSet results = vqe.execSelect();
 	
-			// Ottengo l'ultimo punto della traiettoria (cioè quello precedente a quello che si sta per inserire)
+			// Ottengo l'ultimo punto della traiettoria (cioè il punto precedente a quello che si sta per inserire)
 			QuerySolution qn = results.next();
 			int x = qn.get("x").asLiteral().getInt();
 			int y = qn.get("y").asLiteral().getInt();
@@ -536,8 +536,10 @@ public class OntPopulation {
 
 			/* poi prelevo il successivo (ossia quella attuale) */
 			Point post = new Point(center.x, center.y);
+			
+			System.out.println("Prec: " + prec.toString() + ", Post: " + post.toString());
 
-			// Imposto i valori per le proprietà  del blob
+			// Imposto i valori per le proprietà del blob
 			direction = Functions.getDirection(prec, post);
 			speed = Functions.Speed(prec, post);
 			time = (float) numPoints * 0.14f;
@@ -585,7 +587,7 @@ public class OntPopulation {
 			}
 		}
 
-		// Setto le restanti proprietÃ  a blob e boundingBox
+		// Setto le restanti proprietà a blob e boundingBox
 		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Blob" + individual_id + "> <" + NS + "blobid> '"
 				+ individual_id + "'}";
 		vur = VirtuosoUpdateFactory.create(str, graph);
@@ -606,7 +608,6 @@ public class OntPopulation {
 		Node o13 = NodeFactory.createURI(NS + "CenterPointBlob" + individual_id);
 		graph.add(new Triple(s13, p13, o13));
 
-		
 		
 		// Setto la proprietà  di blob malformato
 		if (!lowerLimitRespect) {
@@ -654,7 +655,7 @@ public class OntPopulation {
 			vur.exec();
 		}
 
-		// Setto la proprietà  di probabile gruppo
+		// Setto la proprietà di probabile gruppo
 		if (!upperLimitRespect) {
 			if (trackingOutputFile.equals("src//view1.txt")) {
 				str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "Person" + temp2[0] + "> <" + NS
@@ -734,7 +735,7 @@ public class OntPopulation {
 				i2_isProbablyAGroup = false;
 		int perspective1, perspective2, last_seen_frame = 0, first_seen_frame = 0;
 		Iterator<String> groupIt;
-		ExtendedIterator memberIt, iter;
+		ExtendedIterator<?> memberIt, iter;
 		int groupOldness;
 		int groupSince;
 		VirtuosoUpdateRequest vur;
