@@ -2,11 +2,11 @@ package tracking;
 
 import java.awt.Point;
 
-public class TemporalEntry{
+public class TemporalEntry {
 	private Integer frameId;
 	private Float seconds;
 	private Point center;
-	
+
 	public TemporalEntry(Integer frameId, Float seconds, Point center) {
 		this.frameId = frameId;
 		this.seconds = seconds;

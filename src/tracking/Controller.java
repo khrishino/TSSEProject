@@ -213,20 +213,20 @@ public class Controller implements ActionListener, MouseListener {
 							 * temp2[4] = coordinata x del vertice bottomRight
 							 */
 
-							String[] temp2 = line.split("	");
-
+							String[] txtRowInfo = line.split("	");
+							
 							/*
 							 * creo un Blob, creando prima un BoundingBox,
 							 * creando prima i quattro punti rappresentanti i
-							 * suoi 4 vertici (tutto questo √® integrato nel
+							 * suoi 4 vertici (tutto questo Ë integrato nel
 							 * metodo CreateBlob al quale passo anche iFrame in
-							 * modo da poter settare altre propriet√† legate ad
+							 * modo da poter settare altre propriet‡ legate ad
 							 * esso
 							 */
 
-							// idBlob rappresenta il numero di bounding box presenti nel file view1.txt
-							String person = op.createBlob(Integer.toString(idBlob), temp2, NS + "Frame" + extracted_id);
-							peopleOfAFrame.add(person);
+							// idBlob rappresenta il counter che si incrementa per ogni blob trovato nel view1.txt
+							op.createBlob(Integer.toString(idBlob), txtRowInfo, NS + "Frame" + extracted_id);
+							peopleOfAFrame.add("Person" + txtRowInfo[0]);
 							idBlob++;
 
 							line = bufferedReader.readLine();
