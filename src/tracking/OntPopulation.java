@@ -81,109 +81,53 @@ public class OntPopulation {
 		this.directionChanges = directionChanges;
 	}
 
-	public void createPassingArea(Point bottomRight, Point topLeft) {
-		VirtuosoUpdateRequest vur;
-
+	public void createPassingArea(Point bottomRight, Point topLeft) {	
 		Point topRight = new Point(bottomRight.x, topLeft.y);
 		Point bottomLeft = new Point(topLeft.x, bottomRight.y);
 
 		// Creazione istanza bbPassingArea1 del tipo BoundingBox
-		Node s1 = NodeFactory.createURI(NS + "bbPassingArea1");
-		Node p1 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o1 = NodeFactory.createURI(NS + "BoundingBox");
-		graph.add(new Triple(s1, p1, o1));
-
+		addTriple(NS + "bbPassingArea1", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "BoundingBox");
+		
 		setBoundingBox(NS + "bbPassingArea1", "pa1", topLeft, topRight, bottomRight, bottomLeft);
 
-		// Creazione istanza PassingArea1 del tipo PassingArea e aggiunta delle sue
-		// properties
-		Node s2 = NodeFactory.createURI(NS + "PassingArea1");
-		Node p2 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o2 = NodeFactory.createURI(NS + "PassingArea");
-		graph.add(new Triple(s2, p2, o2));
-
-		String str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PassingArea1> <" + NS + "id> '08'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		Node s3 = NodeFactory.createURI(NS + "PassingArea1");
-		Node p3 = NodeFactory.createURI(NS + "hasBoundingBox");
-		Node o3 = NodeFactory.createURI(NS + "bbPassingArea1");
-		graph.add(new Triple(s3, p3, o3));
+		// Creazione istanza PassingArea1 del tipo PassingArea e aggiunta delle sue properties
+		addTriple(NS + "PassingArea1", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "PassingArea");
+		performInsert(NS + "PassingArea1", NS + "id", "08");
+		
+		addTriple(NS + "PassingArea1", NS + "hasBoundingBox", NS + "bbPassingArea1");
 
 		/*
-		 * Definisco un rettangolo che tornerà  utile per il controllo dell'intersezione
+		 * Definisco un rettangolo che tornerà utile per il controllo dell'intersezione
 		 * di un BoundingBox con una specifia area
 		 */
 		int width = topRight.x - topLeft.x;
 		int height = bottomLeft.y - topLeft.y;
 		Rectangle rect_passing1 = new Rectangle(topLeft.x, topLeft.y, width, height);
 		rect.add(rect_passing1);
-
 	}
 
 	public void createSinglePerspectiveArea(int id, Point tLV, Point bRV, float wF, float hF, int minH, int minW,
 			int maxH, int maxW) {
-		VirtuosoUpdateRequest vur;
-
 		// Calcolo i restanti due vertici del bounding box
 		Point tRV = new Point(bRV.x, tLV.y);
 		Point bLV = new Point(tLV.x, bRV.y);
 
 		// Creo l'individuo bounding box e gli setto i vertici
-		Node s1 = NodeFactory.createURI(NS + "bbPerspectiveArea" + id);
-		Node p1 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o1 = NodeFactory.createURI(NS + "BoundingBox");
-		graph.add(new Triple(s1, p1, o1));
+		addTriple(NS + "bbPerspectiveArea" + id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "BoundingBox");
 
 		setBoundingBox(NS + "bbPerspectiveArea" + id, "perspare" + id, tLV, tRV, bRV, bLV);
 
-		// Creo l'individuo perspective area e gli setto le proprietï¿½
-		Node s2 = NodeFactory.createURI(NS + "PerspectiveArea" + id);
-		Node p2 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o2 = NodeFactory.createURI(NS + "SpatialPerspectiveArea");
-		graph.add(new Triple(s2, p2, o2));
-
-		String str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "id> '1" + id
-				+ "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		Node s3 = NodeFactory.createURI(NS + "PerspectiveArea" + id);
-		Node p3 = NodeFactory.createURI(NS + "hasBoundingBox");
-		Node o3 = NodeFactory.createURI(NS + "bbPerspectiveArea" + id);
-		graph.add(new Triple(s3, p3, o3));
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "hfactor> '" + hF
-				+ "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "wfactor> '" + wF
-				+ "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "minHumanHeight> '"
-				+ minH + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "minHumanWidth> '"
-				+ minW + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "maxHumanHeight> '"
-				+ maxH + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "PerspectiveArea" + id + "> <" + NS + "maxHumanWidth> '"
-				+ maxW + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
+		// Creo l'individuo perspective area e gli setto le proprietà
+		addTriple(NS + "PerspectiveArea" + id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "SpatialPerspectiveArea");
+		performInsert(NS + "PerspectiveArea" + id, NS + "id", "1" + id);
+		
+		addTriple(NS + "PerspectiveArea" + id, NS + "hasBoundingBox", NS + "bbPerspectiveArea" + id);
+		performInsert(NS + "PerspectiveArea" + id, NS + "hfactor", Float.toString(hF));
+		performInsert(NS + "PerspectiveArea" + id, NS + "wfactor", Float.toString(wF));
+		performInsert(NS + "PerspectiveArea" + id, NS + "minHumanHeight", Integer.toString(minH));
+		performInsert(NS + "PerspectiveArea" + id, NS + "minHumanWidth", Integer.toString(minW));
+		performInsert(NS + "PerspectiveArea" + id, NS + "maxHumanHeight", Integer.toString(maxH));
+		performInsert(NS + "PerspectiveArea" + id, NS + "maxHumanWidth", Integer.toString(maxW));
 	}
 
 	public void createPerspectiveAreas() {
@@ -308,8 +252,8 @@ public class OntPopulation {
 		return same;
 	}
 
-	// txtRowInfo = {personID, topLeft.y, topLeft.x, bottomRight.y, bottomRight.x}
 	public void createBlob(String individual_id, String[] txtRowInfo, String idFrame) {
+		// txtRowInfo = {personID, topLeft.y, topLeft.x, bottomRight.y, bottomRight.x}
 		Triple t = null;
 		ExtendedIterator<?> iter = null;
 		
@@ -336,8 +280,7 @@ public class OntPopulation {
 		addTriple(NS + "red", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "RGBColor");
 		addTriple(NS + "blue", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "RGBColor");
 
-		// Definizione dell'individuo di tipo punto che rappresenta il centro del
-		// bounding box
+		// Definizione dell'individuo di tipo punto che rappresenta il centro del bounding box
 		Point center = Functions.getCenter(topLeft, bottomRight);
 
 		addTriple(NS + "CenterPointBlob" + individual_id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "Point");
@@ -588,8 +531,10 @@ public class OntPopulation {
 		ExtendedIterator<?> memberIt, iter;
 		int groupOldness;
 		int groupSince;
+		
 		VirtuosoUpdateRequest vur;
 		VirtuosoQueryExecution vqe;
+		
 		RDFNode bRV_x = null, bLV_x = null, bLV_y = null, direct1 = null, direct2 = null, Node_frameId = null,
 				Node_last_seen = null, Node_first_seen = null;
 		ResultSet results;
@@ -608,6 +553,7 @@ public class OntPopulation {
 						t = (Triple) iter.next();
 						blob = t.getObject();
 					}
+					
 					// Ottengo la direzione della persona
 					Node p2 = NodeFactory.createURI(NS + "hasDirection");
 					iter = graph.find(blob, p2, Node.ANY);
@@ -873,12 +819,9 @@ public class OntPopulation {
 									t = (Triple) iter.next();
 									graph.delete(t);
 								}
-
-								Node s21 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
-								Node p21 = NodeFactory.createURI(NS + "lastSeenAt");
-								Node o21 = NodeFactory.createURI(frame);
-								graph.add(new Triple(s21, p21, o21));
-
+								
+								addTriple("http://xmlns.com/foaf/0.1/" + currentGroup, NS + "lastSeenAt", frame);
+								
 								Node s22 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
 								Node p22 = NodeFactory.createURI(NS + "firstSeenAt");
 								iter = graph.find(s22, p22, Node.ANY);
@@ -914,53 +857,27 @@ public class OntPopulation {
 									vur = VirtuosoUpdateFactory.create(str, graph);
 									vur.exec();
 								}
-
-								str = "INSERT INTO GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/" + currentGroup
-										+ "> <" + NS + "groupSince> '" + groupSince + "'}";
-								vur = VirtuosoUpdateFactory.create(str, graph);
-								vur.exec();
-
+								performInsert("http://xmlns.com/foaf/0.1/" + currentGroup, NS + "groupSince", Integer.toString(groupSince));
 								existingGroup = true;
 								// System.out.println("Modificato il gruppo "+currentGroup.getLocalName()+" con
 								// le persone "+individ1.getLocalName()+" "+individ2.getLocalName());
 							}
 						}
 
-						// Se il gruppo formato dalla coppia di persone in esame non esiste allora lo
-						// creo
+						// Se il gruppo formato dalla coppia di persone in esame non esiste allora lo creo
 						if (!existingGroup) {
-							Node s26 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + "Group" + groupId);
-							Node p26 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-							Node o26 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/Group");
-							graph.add(new Triple(s26, p26, o26));
-
+							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Group");
+							
 							// System.out.println("Creato il gruppo "+newGroup.getLocalName()+" con le
 							// persone "+individ1.getLocalName()+" "+individ2.getLocalName());
-							Node s27 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + "Group" + groupId);
-							Node p27 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/member");
-							Node o27 = NodeFactory.createURI(NS + individ1);
-							graph.add(new Triple(s27, p27, o27));
-
-							Node s28 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + "Group" + groupId);
-							Node p28 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/member");
-							Node o28 = NodeFactory.createURI(NS + individ2);
-							graph.add(new Triple(s28, p28, o28));
-
-							str = "INSERT INTO GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/Group" + groupId
-									+ "> <" + NS + "id> '" + groupId + "'}";
-							vur = VirtuosoUpdateFactory.create(str, graph);
-							vur.exec();
-
-							Node s30 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + "Group" + groupId);
-							Node p30 = NodeFactory.createURI(NS + "lastSeenAt");
-							Node o30 = NodeFactory.createURI(frame);
-							graph.add(new Triple(s30, p30, o30));
-
-							Node s31 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + "Group" + groupId);
-							Node p31 = NodeFactory.createURI(NS + "firstSeenAt");
-							Node o31 = NodeFactory.createURI(frame);
-							graph.add(new Triple(s31, p31, o31));
-
+							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://xmlns.com/foaf/0.1/member", NS + individ1);
+							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://xmlns.com/foaf/0.1/member", NS + individ2);
+	
+							performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "id", Integer.toString(groupId));
+							
+							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, NS + "lastSeenAt", frame);
+							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, NS + "firstSeenAt", frame);
+							
 							groupSince = 1;
 
 							build = "SELECT * FROM <" + GRAPH + "> WHERE { <http://xmlns.com/foaf/0.1/Group" + groupId
@@ -975,17 +892,13 @@ public class OntPopulation {
 								vur = VirtuosoUpdateFactory.create(str, graph);
 								vur.exec();
 							}
-
-							str = "INSERT INTO GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/Group" + groupId
-									+ "> <" + NS + "groupSince> '" + groupSince + "'}";
-							vur = VirtuosoUpdateFactory.create(str, graph);
-							vur.exec();
-
+							
+							performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSince", Integer.toString(groupSince));
+							
 							groups.add("Group" + groupId);
 
 							// Se una delle due persone era probabilmente un gruppo allora viene settato che
-							// il gruppo
-							// ï¿½ tale dall'entrata in scena di entrambe le persone, ovvero non ï¿½ nato da
+							// il gruppo è tale dall'entrata in scena di entrambe le persone, ovvero non è nato da
 							// un incontro
 							boolean flag1 = false;
 							build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + NS + individ1 + "> <" + NS
@@ -1009,17 +922,10 @@ public class OntPopulation {
 								i2_isProbablyAGroup = Boolean.parseBoolean(rs.get("o").asLiteral().toString());
 							}
 
-							if ((flag1 && i1_isProbablyAGroup) || (flag2 && i2_isProbablyAGroup)) {
-								str = "INSERT INTO GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/Group" + groupId
-										+ "> <" + NS + "groupSinceEntry> 'true'}";
-								vur = VirtuosoUpdateFactory.create(str, graph);
-								vur.exec();
-							} else {
-								str = "INSERT INTO GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/Group" + groupId
-										+ "> <" + NS + "groupSinceEntry> 'false'}";
-								vur = VirtuosoUpdateFactory.create(str, graph);
-								vur.exec();
-							}
+							if ((flag1 && i1_isProbablyAGroup) || (flag2 && i2_isProbablyAGroup))
+								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "true");
+							else 
+								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "false");
 							groupId++;
 						}
 					}
@@ -1062,24 +968,19 @@ public class OntPopulation {
 		bottomLeft = new Point(724, 576);
 
 		/* Creo prima il BoundingBox */
-		Node s1 = NodeFactory.createURI(NS + "EntryArea1");
-		Node p1 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o1 = NodeFactory.createURI(NS + "BoundingBox");
-		graph.add(new Triple(s1, p1, o1));
-
+		addTriple(NS + "EntryArea1", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "BoundingBox");
+		
 		/* Con tale metodo setto il BoundingBox */
 		setBoundingBox(NS + "EntryArea1", "ena1", topLeft, topRight, bottomRight, bottomLeft);
 
 		/* Creo l'istanza relativa alla specifica area */
-		Node s2 = NodeFactory.createURI(NS + "EntryArea1");
-		Node p2 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o2 = NodeFactory.createURI(NS + "EntryArea");
-		graph.add(new Triple(s2, p2, o2));
-
+		addTriple(NS + "EntryArea1", "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "EntryArea");
+		performInsert(NS + "+EntryArea1", NS + "id", "01");
+		
 		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "+EntryArea1> <" + NS + "id> '01'}";
 		vur = VirtuosoUpdateFactory.create(str, graph);
 		vur.exec();
-
+		
 		Node s4 = NodeFactory.createURI(NS + "EntryArea1");
 		Node p4 = NodeFactory.createURI(NS + "hasBoundingBox");
 		Node o4 = NodeFactory.createURI(NS + "EntryArea1");
@@ -1412,91 +1313,27 @@ public class OntPopulation {
 	/* In questo metodo setto l'i-esimo BoundingBox */
 	public void setBoundingBox(String ind, String individual_id, Point topLeft, Point topRight, Point bottomRight,
 			Point bottomLeft) {
-		VirtuosoUpdateRequest vur;
-		String str;
-
 		// Aggiunta dei Point
-		Node s1 = NodeFactory.createURI(NS + "TopLeftPoint" + individual_id);
-		Node p1 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o1 = NodeFactory.createURI(NS + "Point");
-		graph.add(new Triple(s1, p1, o1));
-
-		Node s2 = NodeFactory.createURI(NS + "TopRightPoint" + individual_id);
-		Node p2 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o2 = NodeFactory.createURI(NS + "Point");
-		graph.add(new Triple(s2, p2, o2));
-
-		Node s3 = NodeFactory.createURI(NS + "BottomLeftPoint" + individual_id);
-		Node p3 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o3 = NodeFactory.createURI(NS + "Point");
-		graph.add(new Triple(s3, p3, o3));
-
-		Node s4 = NodeFactory.createURI(NS + "BottomRightPoint" + individual_id);
-		Node p4 = NodeFactory.createURI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-		Node o4 = NodeFactory.createURI(NS + "Point");
-		graph.add(new Triple(s4, p4, o4));
-
+		addTriple(NS + "TopLeftPoint" + individual_id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "Point");
+		addTriple(NS + "TopRightPoint" + individual_id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "Point");
+		addTriple(NS + "BottomLeftPoint" + individual_id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "Point");
+		addTriple(NS + "BottomRightPoint" + individual_id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", NS + "Point");
+		
 		// Aggiunta delle properties x e y per ogni punto
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "TopLeftPoint" + individual_id + "> <" + NS + "x> '"
-				+ topLeft.x + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "TopLeftPoint" + individual_id + "> <" + NS + "y> '"
-				+ topLeft.y + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "TopRightPoint" + individual_id + "> <" + NS + "x> '"
-				+ topRight.x + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "TopRightPoint" + individual_id + "> <" + NS + "y> '"
-				+ topRight.y + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "BottomLeftPoint" + individual_id + "> <" + NS + "x> '"
-				+ bottomLeft.x + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "BottomLeftPoint" + individual_id + "> <" + NS + "y> '"
-				+ bottomLeft.y + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "BottomRightPoint" + individual_id + "> <" + NS + "x> '"
-				+ bottomRight.x + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
-
-		str = "INSERT INTO GRAPH <" + GRAPH + "> { <" + NS + "BottomRightPoint" + individual_id + "> <" + NS + "y> '"
-				+ bottomRight.y + "'}";
-		vur = VirtuosoUpdateFactory.create(str, graph);
-		vur.exec();
+		performInsert(NS + "TopLeftPoint" + individual_id, NS + "x", Integer.toString(topLeft.x));
+		performInsert(NS + "TopLeftPoint" + individual_id, NS + "y", Integer.toString(topLeft.y));
+		performInsert(NS + "TopRightPoint" + individual_id, NS + "x", Integer.toString(topRight.x));
+		performInsert(NS + "TopRightPoint" + individual_id, NS + "y", Integer.toString(topRight.y));
+		performInsert(NS + "BottomLeftPoint" + individual_id, NS + "x", Integer.toString(bottomLeft.x));
+		performInsert(NS + "BottomLeftPoint" + individual_id, NS + "y", Integer.toString(bottomLeft.y));
+		performInsert(NS + "BottomRightPoint" + individual_id, NS + "x", Integer.toString(bottomRight.x));
+		performInsert(NS + "BottomRightPoint" + individual_id, NS + "y", Integer.toString(bottomRight.y));
 
 		// Aggiunta del valore delle properties
-		Node s13 = NodeFactory.createURI(ind);
-		Node p13 = NodeFactory.createURI(NS + "bottomRightVertex");
-		Node o13 = NodeFactory.createURI(NS + "BottomRightPoint" + individual_id);
-		graph.add(new Triple(s13, p13, o13));
-
-		Node s14 = NodeFactory.createURI(ind);
-		Node p14 = NodeFactory.createURI(NS + "bottomLeftVertex");
-		Node o14 = NodeFactory.createURI(NS + "BottomLeftPoint" + individual_id);
-		graph.add(new Triple(s14, p14, o14));
-
-		Node s15 = NodeFactory.createURI(ind);
-		Node p15 = NodeFactory.createURI(NS + "topRightVertex");
-		Node o15 = NodeFactory.createURI(NS + "TopRightPoint" + individual_id);
-		graph.add(new Triple(s15, p15, o15));
-
-		Node s16 = NodeFactory.createURI(ind);
-		Node p16 = NodeFactory.createURI(NS + "topLeftVertex");
-		Node o16 = NodeFactory.createURI(NS + "TopLeftPoint" + individual_id);
-		graph.add(new Triple(s16, p16, o16));
+		addTriple(ind, NS + "bottomRightVertex", NS + "BottomRightPoint" + individual_id);
+		addTriple(ind, NS + "bottomLeftVertex", NS + "BottomLeftPoint" + individual_id);
+		addTriple(ind, NS + "topRightVertex", NS + "TopRightPoint" + individual_id);
+		addTriple(ind, NS + "topLeftVertex", NS + "TopLeftPoint" + individual_id);
 	}
 
 	public void saveParameters(int idBlob) {
@@ -1530,6 +1367,8 @@ public class OntPopulation {
 	private void performInsert(String subj, String pred, String obj) {
 		String s = "INSERT INTO GRAPH <" + GRAPH + "> { <" + subj + "> <" + pred + "> '"
 				+ obj + "'}";
+		//if(pred.contains("groupSinceEntry"))
+			//System.out.println(s + " SOTTO");
 		VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(s, graph);
 		vur.exec();
 	}
