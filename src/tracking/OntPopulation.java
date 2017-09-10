@@ -628,7 +628,6 @@ public class OntPopulation {
 
 					x1 = Math.round((Integer.parseInt(bLV_x_st) + Integer.parseInt(bRV_x_st)) / 2);
 					y1 = Integer.parseInt(bLV_y_st);
-					// System.out.println(blob.getLocalName());
 					blob = null;
 					boundingBox = null;
 					bLV = null;

@@ -312,8 +312,7 @@ public class SparqlQueries {
 	 * @param speedTreshold
 	 * @return
 	 */
-	public static ResultSetRewindable query6(VirtGraph graph, float speedTreshold){
-
+	public static ResultSetRewindable query6(VirtGraph graph, float speedThreshold){
 		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n"
 						+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n"
 						+ "SELECT (?personId AS ?ID_Persona) (MIN(xsd:integer(?frameId)) AS ?ID_Frame) (AVG(xsd:float(?speed)) AS ?AverageSpeed)\n"
@@ -329,8 +328,7 @@ public class SparqlQueries {
 									+ "?frame tracking:id ?frameId.\n"
 						+ "} \n"
 						+ "GROUP BY (?personId)\n"
-						+ "HAVING (MAX(xsd:float(?speed))>xsd:float("+speedTreshold+"))\n"
-						//+ "HAVING (AVG(xsd:float(?speed))>xsd:float("+speedTreshold+"))\n"
+						+ "HAVING (AVG(xsd:float(?speed))>xsd:float("+speedThreshold+"))\n"
 						+ "ORDER BY (xsd:integer(?personId))\n";
 
 		Query sparql = QueryFactory.create(build);
@@ -767,8 +765,8 @@ public class SparqlQueries {
 	
 	public static ResultSetRewindable query17(VirtGraph graph){
 		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n "
-						+ "PREFIX afn:<http://jena.apache.org/ARQ/function#>\n"
 						+ "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n "
+						+ "PREFIX bif:<bif:>\n"
 						+ "SELECT ?tlv1 ?tlv2 ?person1 ?person2 ?frameId ?personId1 ?personId2\n "
 						+ "FROM <"+GRAPH+">\n"
 						+ "WHERE{\n"
@@ -798,8 +796,7 @@ public class SparqlQueries {
 									+ "?tlv2 tracking:x ?tlv2_x. \n"
 									+ "?tlv2 tracking:x ?tlv2_y. \n"
 									//FILTER per differenza di tlv 
-									+ "FILTER (( afn:sqrt( ((xsd:integer(?tlv2_x)) - (xsd:integer(?tlv1_x)))^2 + ((xsd:integer(?tlv2_y)) - (xsd:integer(?tlv1_x)))^2 )  ) < xsd:integer(1000))\n"
-									
+									+ "FILTER ((bif:sqrt(bif:power((xsd:integer(?tlv2_x)) - (xsd:integer(?tlv1_x)),2) + bif:power((xsd:integer(?tlv2_y)) - (xsd:integer(?tlv1_y)),2))) < xsd:integer(1000))\n"
 									+ "}"
 									+ "ORDER BY (xsd:integer(?frameId))\n";
 		
@@ -844,18 +841,20 @@ public class SparqlQueries {
 		Query sparql = QueryFactory.create(build);
 		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 		ResultSet results = vqe.execSelect();
+		if(results.hasNext()) {
+			QuerySolution sol = results.nextSolution();
 		
-		QuerySolution sol = results.nextSolution();
+			int tlv_x = sol.get("tlv_x").asLiteral().getInt();
+			int tlv_y = sol.get("tlv_y").asLiteral().getInt();
+			int brv_x = sol.get("brv_x").asLiteral().getInt();
+			int brv_y = sol.get("brv_y").asLiteral().getInt();
 		
-		int tlv_x = sol.get("tlv_x").asLiteral().getInt();
-		int tlv_y = sol.get("tlv_y").asLiteral().getInt();
-		int brv_x = sol.get("brv_x").asLiteral().getInt();
-		int brv_y = sol.get("brv_y").asLiteral().getInt();
+			int width = brv_x-tlv_x;
+			int height = brv_y-tlv_y;
 		
-		int width = brv_x-tlv_x;
-		int height = brv_y-tlv_y;
-		
-		return new Rectangle(tlv_x, tlv_y, width, height);
+			return new Rectangle(tlv_x, tlv_y, width, height);
+		} else
+			return null;
 	}
 		
 	public static ResultSetRewindable getPersonMemberOfAGroup(VirtGraph graph, int groupId) {//, int frameId){

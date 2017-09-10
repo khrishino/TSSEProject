@@ -84,7 +84,7 @@ public class Functions {
 	 * FrameRate è di 7 Frame per secondo, vuol dire che tra un Frame e l'altro
 	 * passa un tempo pari a circa 0,14 secondi (1/7); - per la distanza invece,
 	 * bisogna tener conto che essa deve essere espressa in metri, mentre tale
-	 * distanza è ottenuta in pixel, pertanto, sapendo che un Metro è uguale a circa
+	 * distanza è ottenuta in pixel, pertanto, sapendo che un metro è uguale a circa
 	 * 3779 pixels, posso calcolare la distanza in metri attraverso la formula
 	 * inversa; Pertanto, dividendo la distanza rispetto al tempo, è possibile
 	 * ottenere la velocità
@@ -95,6 +95,7 @@ public class Functions {
 		float distanceInMeters = distance / 3779;
 
 		float speed = (float) (distanceInMeters / 0.14);
+		System.out.println("VELOCITA': "+speed);
 		return speed;
 	}
 

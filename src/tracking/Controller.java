@@ -1170,7 +1170,9 @@ public class Controller implements ActionListener, MouseListener {
 			if (typeOfQuery == 0) {
 				personId = solN.get("ID_Persona").asLiteral().getInt();
 				frameId = solN.get("ID_Frame").asLiteral().getInt();
-				recs.add(SparqlQueries.getPersonAtFrameRectangle(graph, personId, frameId));
+				Rectangle rec = SparqlQueries.getPersonAtFrameRectangle(graph, personId, frameId);
+				if(rec != null)
+					recs.add(rec);
 			} else if (typeOfQuery == 1) {
 				groupId = solN.get("ID_Gruppo").asLiteral().getInt();
 				frameId = solN.get("ID_Frame").asLiteral().getInt();
@@ -1367,11 +1369,11 @@ public class Controller implements ActionListener, MouseListener {
 
 		case SparqlQueries.QUERY_6:
 			string.append("Le persone che si muovono ad una velocità  media superiore a " + speedTreshold
-					+ " pixelx/frame sono:\n\n");
+					+ " pixel/frame sono:\n\n");
 			while (results.hasNext()) {
 				qs = results.nextSolution();
 				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocità  "
-						+ String.format("%.2f", qs.get("AverageSpeed").asLiteral().getFloat()) + " px/fr\n");
+						+ String.format("%.4f", qs.get("AverageSpeed").asLiteral().getFloat()) + " px/fr\n");
 			}
 			break;
 
