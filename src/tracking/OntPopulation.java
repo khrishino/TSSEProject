@@ -458,7 +458,7 @@ public class OntPopulation {
 		}
 
 		// Se la persona non Ë stata ignorata (e quindi sono stati calcolati
-		// gli opportuni valori) setto queste propriet√† al blob
+		// gli opportuni valori) setto queste propriet‡† al blob
 		if (!personIgnored) {
 			// Setto l'associazione tra blob e persona
 			addTriple(NS + "Blob" + individual_id, NS + "isAssociatedWith", NS + "Person" + txtRowInfo[0]);

@@ -307,8 +307,8 @@ public class Controller implements ActionListener, MouseListener {
 					view.showQueryResults(stringResults);
 				} else {
 					view.showQueryResults("Risultato della query " + SparqlQueries.QUERY_1 + "\n\n"
-							+ "La persona con ID " + trackingId + " non √® presente nella scena");
-					view.showMessage("La persona con ID " + trackingId + " non √® presente nella scena");
+							+ "La persona con ID " + trackingId + " non Ë presente nella scena");
+					view.showMessage("La persona con ID " + trackingId + " non Ë presente nella scena");
 				}
 			}
 
@@ -521,9 +521,9 @@ public class Controller implements ActionListener, MouseListener {
 					view.showQueryResults(stringResults);
 				} else {
 					StringBuffer toShow = new StringBuffer(
-							"La persona con ID " + trackingId + " non √® presente nella scena");
+							"La persona con ID " + trackingId + " non Ë presente nella scena");
 					if (minPermanenceTime > -1) {
-						toShow.append(", o comunque non lo √® per pi√π di " + minPermanenceTime + " secondi\n");
+						toShow.append(", o comunque non lo Ë per pi˘ di " + minPermanenceTime + " secondi\n");
 					}
 					view.showQueryResults(
 							"Risultato della query " + SparqlQueries.QUERY_5 + "\n\n" + toShow.toString());
@@ -541,7 +541,7 @@ public class Controller implements ActionListener, MouseListener {
 			speedThreshold = -1;
 			resp1 = null;
 			resp1 = JOptionPane.showInputDialog(view,
-					"Inserire la velocit√† minima (in metri al secondo) al di sopra della\nquale restituire le velocit√† medie delle persone (0 per le persone in movimento)",
+					"Inserire la velocit‡† minima (in metri al secondo) al di sopra della\nquale restituire le velocit‡† medie delle persone (0 per le persone in movimento)",
 					"Query 6", JOptionPane.QUESTION_MESSAGE);
 			if (resp1 != null) {
 				try {
@@ -657,8 +657,8 @@ public class Controller implements ActionListener, MouseListener {
 					view.showQueryResults(stringResults);
 				} else {
 					view.showQueryResults("Risultato della query " + SparqlQueries.QUERY_8 + "\n\n"
-							+ "La persona con ID " + trackingId + " non √® presente nella scena");
-					view.showMessage("La persona con ID " + trackingId + " non √® presente nella scena");
+							+ "La persona con ID " + trackingId + " non Ë presente nella scena");
+					view.showMessage("La persona con ID " + trackingId + " non Ë presente nella scena");
 				}
 			}
 
@@ -1134,7 +1134,7 @@ public class Controller implements ActionListener, MouseListener {
 
 	/**
 	 * funzione che dato il risultato della query e un intero che indica se la
-	 * query √® fatta sulle persone (0) o sui gruppi (1) restituisce l'insieme
+	 * query Ë fatta sulle persone (0) o sui gruppi (1) restituisce l'insieme
 	 * di immagini ritagliate, relative alla sola persona/gruppo
 	 * 
 	 * @param result
@@ -1356,7 +1356,7 @@ public class Controller implements ActionListener, MouseListener {
 				}
 			} else {
 				if (results.hasNext()) {
-					string.append("La persona: " + trackingId + " √® presente nella scena per un tempo superiore a "
+					string.append("La persona: " + trackingId + " Ë presente nella scena per un tempo superiore a "
 							+ minPermanenceTime + " secondi, ");
 					qs = results.nextSolution();
 					string.append("in particolare essa permane nella scena per " + qs.get("Time").asLiteral().getInt()
@@ -1366,11 +1366,11 @@ public class Controller implements ActionListener, MouseListener {
 			break;
 
 		case SparqlQueries.QUERY_6:
-			string.append("Le persone che si muovono ad una velocit√† media superiore a " + speedTreshold
+			string.append("Le persone che si muovono ad una velocit‡† media superiore a " + speedTreshold
 					+ " pixelx/frame sono:\n\n");
 			while (results.hasNext()) {
 				qs = results.nextSolution();
-				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocit√† "
+				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocit‡† "
 						+ String.format("%.2f", qs.get("AverageSpeed").asLiteral().getFloat()) + " px/fr\n");
 			}
 			break;
@@ -1459,7 +1459,7 @@ public class Controller implements ActionListener, MouseListener {
 					+ this.passingAreaBottomRightCorner.y + "\n\n");
 
 			if (choice == 0) {
-				string.append("Le persone che vi ci sono entrate pi√π volte sono:\n\n");
+				string.append("Le persone che vi ci sono entrate pi˘ volte sono:\n\n");
 				while (results.hasNext()) {
 					qs = results.nextSolution();
 					string.append("persona " + qs.get("ID_Persona").asLiteral().getInt() + "\n");
@@ -1491,11 +1491,11 @@ public class Controller implements ActionListener, MouseListener {
 			break;
 
 		case SparqlQueries.QUERY_14:
-			string.append("Le persone sospette che si muovono ad una velocit√† massima superiore a " + speedTreshold
+			string.append("Le persone sospette che si muovono ad una velocit‡† massima superiore a " + speedTreshold
 					+ " pixelx/frame" + " (effettuando cambi di direzione) sono:\n\n");
 			while (results.hasNext()) {
 				qs = results.nextSolution();
-				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocit√†: "
+				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocit‡†: "
 						+ String.format("%.2f", qs.get("MaxSpeed").asLiteral().getFloat()) + " px/fr\n");
 			}
 			break;

@@ -105,7 +105,7 @@ public class MyPanel extends JPanel {
 			}
 		}
 		
-		// Disegno passing area se c'Ã¨
+		// Disegno passing area se c'è
 		if (toDrawRectangle!=null) {
 			Stroke oldStroke = g2.getStroke();
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);

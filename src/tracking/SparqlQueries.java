@@ -81,9 +81,9 @@ public class SparqlQueries {
 						// SELECT vuole assegnare un valore a ?personId e a ?frameId
 						+ "SELECT (?personId AS ?ID_Persona) (?frameId AS ?ID_Frame) ?x ?y\n"		
 						+ "FROM <"+GRAPH+">\n"
-						/* WHERE indica il pattern da matchare pu√≤ contenere + di 1 pattern
+						/* WHERE indica il pattern da matchare puÚ contenere + di 1 pattern
 						* e saranno considerati come in AND tra loro, quindi se 1 non trova match,
-						* il risultato complessibo sar√† un grafo vuoto! */
+						* il risultato complessibo sar‡ un grafo vuoto! */
 						+ "WHERE {\n"
 									+ "?person a tracking:Person;\n"
 									+ "	tracking:id ?personId.\n"
@@ -261,7 +261,7 @@ public class SparqlQueries {
 	}
 	
 	/**
-	 * Restituisce il tempo di permanenza di ogni persona nella scena, √® possibile
+	 * Restituisce il tempo di permanenza di ogni persona nella scena, Ë possibile
 	 * attraverso i due parametri filtrare per persona oppure porre una soglia temporale
 	 * @param base
 	 * @param trackingId
@@ -307,7 +307,7 @@ public class SparqlQueries {
 	}
 	
 	/**
-	 * Calcola la velocit√† media in cui si muovono le persone nella scena
+	 * Calcola la velocit‡† media in cui si muovono le persone nella scena
 	 * @param base
 	 * @param speedTreshold
 	 * @return
@@ -624,7 +624,7 @@ public class SparqlQueries {
 	}
 	
 	/**
-	 * Calcola la velocit√† massima in cui si muovono le persone nella scena, se supera
+	 * Calcola la velocit‡† massima in cui si muovono le persone nella scena, se supera
 	 * una determinata soglia e la persona in questione ha effettuato dei cambi di direzione, 
 	 * la persona viene segnalata come sospetta.
 	 * @param base
