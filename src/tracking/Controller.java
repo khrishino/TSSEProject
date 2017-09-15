@@ -1423,6 +1423,7 @@ public class Controller implements ActionListener, MouseListener {
 				rs2.reset();
 				qs2 = rs2.nextSolution();
 				string.append(qs2.get("ID_Persona").asLiteral().getInt());
+				System.out.println("Gruppo: " + qs.get("ID_Gruppo").asLiteral().getInt() + " , ID_PERSON: " + qs2.get("ID_Persona").asLiteral().getInt());
 				qs2 = rs2.nextSolution();
 				string.append(" e " + qs2.get("ID_Persona").asLiteral().getInt());
 
@@ -1519,7 +1520,7 @@ public class Controller implements ActionListener, MouseListener {
 				qs2 = rs2.nextSolution();
 				string.append(" e " + qs2.get("ID_Persona").asLiteral().getInt() + "\n");
 			}
-
+			break;
 		case SparqlQueries.QUERY_16:
 			rect = null;
 			string.append("Data l'area della scena con\n");

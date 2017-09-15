@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.jena.graph.Node;
@@ -18,7 +17,6 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
 import virtuoso.jena.driver.VirtGraph;
@@ -57,7 +55,6 @@ public class OntPopulation {
 	private final int[] minWPerspArea = { 10, 11, 15, 19 };
 	private final int[] maxHPerspArea = { 50, 85, 125, 165 };
 	private final int[] maxWPerspArea = { 40, 41, 60, 70 };
-	private final int oldGroupThreshold = 14;
 
 	/*
 	 * L'utilità di tale struttura dati è spiegata all'inizio del metodo
@@ -476,26 +473,17 @@ public class OntPopulation {
 	}
 
 	public void createGroups(ArrayList<String> peopleOfAFrame, String frame) {
-		Node blob = null, boundingBox = null;
-		Triple t = null, currentMember_triple;
-		String build, direction1 = null, direction2 = null, bRV_x_st, bLV_x_st, bLV_y_st, frameId_st, currentMember,
-				last_seen_frame_sub = null, first_seen_frame_sub = null, dir2 = null, bRV = null, bLV = null,
-				dir1 = null, last_seen_frame_st = null, first_seen_frame_st = null;
+		String build, direction1 = null, direction2 = null;
 		int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
-		String currentGroup, str;
-		boolean sameDirection = false, existingGroup, containFirstPerson, containSecondPerson, i1_isProbablyAGroup = false,
+		String str;
+		boolean sameDirection = false, i1_isProbablyAGroup = false,
 				i2_isProbablyAGroup = false;
-		int perspective1, perspective2, last_seen_frame = 0, first_seen_frame = 0;
-		Iterator<String> groupIt;
-		ExtendedIterator<?> memberIt, iter;
-		int groupOldness;
+		int perspective1, perspective2;
 		int groupSince;
 		
 		VirtuosoUpdateRequest vur;
 		VirtuosoQueryExecution vqe;
 		
-		RDFNode bRV_x = null, bLV_x = null, bLV_y = null, direct1 = null, direct2 = null, Node_frameId = null,
-				Node_last_seen = null, Node_first_seen = null;
 		ResultSet results;
 
 		for (String individ1 : peopleOfAFrame) { // Ciclo sulle persone
@@ -555,7 +543,7 @@ public class OntPopulation {
 						SparqlQueries.updateGroups(graph, frame, NS + individ1, NS + individ2);
 						r = SparqlQueries.countGroups(graph, frame, NS + individ1, NS + individ2);	
 						
-						int numGroups = 999;
+						int numGroups = 1;
 						while(r.hasNext()) {
 							System.out.println("Sono entrato");
 							QuerySolution rs = r.nextSolution();
@@ -563,7 +551,7 @@ public class OntPopulation {
 						}
 						
 						System.out.println("NumGroups: " + numGroups);
-						if(numGroups == 0 && numGroups != 999) {
+						if(numGroups == 0) {
 							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Group");
 							
 							// System.out.println("Creato il gruppo "+newGroup.getLocalName()+" con le
@@ -592,8 +580,6 @@ public class OntPopulation {
 							}
 							
 							performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSince", Integer.toString(groupSince));
-							
-							groups.add("Group" + groupId);
 
 							// Se una delle due persone era probabilmente un gruppo allora viene settato che
 							// il gruppo è tale dall'entrata in scena di entrambe le persone, ovvero non è nato da

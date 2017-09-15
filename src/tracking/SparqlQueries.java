@@ -63,7 +63,7 @@ public class SparqlQueries {
 	public static final String DESCRIPTION_14 = "DESCRIZIONE QUERY 14:\n\nCalcola la velocità massima in cui si muovono le persone nella scena.\n"
 												+"Se supera una determinata soglia (40 PPF) e la persona in questione ha effettuato dei cambi di "
 					 							+ "direzione, viene segnalata come sospetta.";
-	public static final String DESCRIPTION_15 = "DESCRIZIONE QUERY 15:\n\nPersone che seguono altre persone all'interno della scena.";
+	public static final String DESCRIPTION_15 = "DESCRIZIONE QUERY 15:\n\nRilevamento di gruppi sospetti.";
 	public static final String DESCRIPTION_16 = "DESCRIZIONE QUERY 16:\n\nRilevamento di persone sospette di spaccio o scambio di merce.";
 	public static final String DESCRIPTION_17 = "DESCRIZIONE QUERY 17:\n\nPersone che seguono altre persone all'interno della scena.";
 	
@@ -760,8 +760,7 @@ public class SparqlQueries {
 		//ResultSetFormatter.out(System.out, rewindableResults);
 		System.out.println(build);
 		return rewindableResults;
-
-		}
+	}
 	
 	public static ResultSetRewindable query17(VirtGraph graph){
 		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n "
@@ -774,13 +773,13 @@ public class SparqlQueries {
 									+ "?frame tracking:id ?frameId. \n"
 									+ "?frame a tracking:Frame. \n"
 									
-									+ "?blob tracking:isAssociatedWith ?person1. \n"
-									+ "?blob a tracking:Blob. \n"
-									+ "?blob tracking:hasBoundingBox ?boundingBox1. \n"
+									+ "?blob1 tracking:isAssociatedWith ?person1. \n"
+									+ "?blob1 a tracking:Blob. \n"
+									+ "?blob1 tracking:hasBoundingBox ?boundingBox1. \n"
 			
-									+ "?blob tracking:isAssociatedWith ?person2. \n"
-									+ "?blob a tracking:Blob. \n"
-									+ "?blob tracking:hasBoundingBox ?boundingBox2. \n"
+									+ "?blob2 tracking:isAssociatedWith ?person2. \n"
+									+ "?blob2 a tracking:Blob. \n"
+									+ "?blob2 tracking:hasBoundingBox ?boundingBox2. \n"
 																		
 									+ "?person1 tracking:id ?personId1.\n"
 									+ "?person1 a tracking:Person. \n"
@@ -788,15 +787,15 @@ public class SparqlQueries {
 									+ "?person2 tracking:id ?personId2.\n"
 									+ "?person2 a tracking:Person. \n"
 
-									+ "?boundingBox1 tracking:topLeftVertex ?tlv1. \n"
-									+ "?boundingBox2 tracking:topLeftVertex ?tlv2. \n"
+									+ "?boundingBox1 tracking:hasCenter ?cp1. \n"
+									+ "?boundingBox2 tracking:hasCenter ?cp2. \n"
 									
-									+ "?tlv1 tracking:x ?tlv1_x. \n"
-									+ "?tlv1 tracking:x ?tlv1_y. \n"
-									+ "?tlv2 tracking:x ?tlv2_x. \n"
-									+ "?tlv2 tracking:x ?tlv2_y. \n"
-									//FILTER per differenza di tlv 
-									+ "FILTER ((bif:sqrt(bif:power((xsd:integer(?tlv2_x)) - (xsd:integer(?tlv1_x)),2) + bif:power((xsd:integer(?tlv2_y)) - (xsd:integer(?tlv1_y)),2))) < xsd:integer(1000))\n"
+									+ "?cp1 tracking:x ?cp1_x. \n"
+									+ "?cp1 tracking:y ?cp1_y. \n"
+									+ "?cp2 tracking:x ?cp2_x. \n"
+									+ "?cp2 tracking:y ?cp2_y. \n"
+									//FILTER per differenza di center points (dei bounding box) di almeno 1 mt 
+									+ "FILTER ((bif:sqrt(bif:power((xsd:integer(?cp2_x)) - (xsd:integer(?cp1_x)),2) + bif:power((xsd:integer(?cp2_y)) - (xsd:integer(?cp1_y)),2))) < xsd:integer(3779))\n"
 									+ "}"
 									+ "ORDER BY (xsd:integer(?frameId))\n";
 		
@@ -1016,8 +1015,11 @@ public class SparqlQueries {
 				"   BIND(xsd:integer(14) AS ?oldGroupThreshold) .\r\n" + 
 				"   BIND(" + "<" + frame + ">" + " AS ?currentFrame) .\r\n" + 
 				"\r\n" + 
+                "<"+person1+"> a tracking:Person .\n" +
+				"<"+person2+"> a tracking:Person .\n" + 
 				"  ?group a foaf:Group;\r\n" + 
-				"          foaf:member " + "<" + person1 + ">" + "," + "<" + person2 + ">" + ";\r\n" + 
+				"          foaf:member " + "<" + person1 + ">" + "; \n" +
+				"          foaf:member " + "<" + person2 + ">" + "; \n" +
 				"          tracking:lastSeenAt ?lastSeenFrame;\r\n" + 
 				"          tracking:groupSince ?oldGroupSince .\r\n" + 
 				"\r\n" + 
@@ -1094,6 +1096,8 @@ public class SparqlQueries {
 				"				      BIND(xsd:integer(14) AS ?oldGroupThreshold) .\r\n" + 
 				"				      BIND(" + "<" + frame + ">" + "AS ?currentFrame) .\r\n" + 
 				"\r\n" + 
+                "					  <"+person1+"> a tracking:Person .\n" +
+				"					  <"+person2+"> a tracking:Person .\n" + 
 				"				      ?group a foaf:Group;\r\n" + 
 				"				            foaf:member " + "<" + person1 + ">" + ", " + "<" + person2 + ">" + ";\r\n" + 
 				"				            tracking:lastSeenAt ?lastSeenFrame .\r\n" + 
