@@ -1,5 +1,6 @@
 package tracking;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
@@ -52,7 +53,7 @@ public class SparqlQueries {
 	public static final String DESCRIPTION_3 = "DESCRIZIONE QUERY 3:\n\nRestituzione delle persone che si sono incontrate (per più di 1 s).";
 	public static final String DESCRIPTION_4 = "DESCRIZIONE QUERY 4:\n\nRestituzione delle persone che sono rimaste ferme nella scena per più di un dato numero di secondi.";
 	public static final String DESCRIPTION_5 = "DESCRIZIONE QUERY 5:\n\nDato l'ID di una persona e una soglia temporale restituzione delle persone che sono state presenti nella scena per un tempo superiore alla soglia.\n- Indicando come ID \"-1\" la query è eseguita su tutte le persone;\n- Indicando come soglia temporale \"-1\" la query è eseguita senza tener conto della soglia;\n";
-	public static final String DESCRIPTION_6 = "DESCRIZIONE QUERY 6:\n\nData una velocità in m/s estrazione di tutte le persone che durante la loro presenza nella scena hanno mantenuto una velocità media superiore a tale soglia.\n- se come velocità limite si indica \"0\" vengono restituite tutte le persone che si sono mosse all'interno della scena, vengono cosi esclusi individui fittizi nati da split di altri individui nelle aree di occlusione;";
+	public static final String DESCRIPTION_6 = "DESCRIZIONE QUERY 6:\n\nData una velocità in px/fr estrazione di tutte le persone che durante la loro presenza nella scena hanno mantenuto una velocità media superiore a tale soglia.\n- se come velocità limite si indica \"0\" vengono restituite tutte le persone che si sono mosse all'interno della scena, vengono cosi esclusi individui fittizi nati da split di altri individui nelle aree di occlusione;";
 	public static final String DESCRIPTION_7 = "DESCRIZIONE QUERY 7:\n\nDato in input un colore dominante tra rosso, blu e nero, restituzione delle persone che hanno tale colore dominante al primo frame al quale sono state osservate nella scena.";
 	public static final String DESCRIPTION_8 = "DESCRIZIONE QUERY 8:\n\nDato l'ID di una persona estrazione dei suoi cambi di direzione all'interno dela scena.";
 	public static final String DESCRIPTION_9 = "DESCRIZIONE QUERY 9:\n\nRestituzione dei gruppi individuati all'interno della scena.";
@@ -1041,7 +1042,6 @@ public class SparqlQueries {
 		vur.exec();
 	}
 	
-	// NON FUNZIONA AL MOMENTO
 	public static void insertGroups(VirtGraph graph, String group, String frame, String person1, String person2, int groupId) {
 		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
 	                   "PREFIX bif:<bif:> \n" +
@@ -1078,7 +1078,7 @@ public class SparqlQueries {
 					   "      BIND((xsd:integer(?currentFrameId) - xsd:integer(?lastSeenFrameId)) AS ?groupOldness) .	\r\n" + 
 					   "      FILTER(?groupOldness <= ?oldGroupThreshold)    	\r\n" + 
 					   "  }\r\n" + 
-					   "  GROUP BY ?numGroups ) = 0) \r\n" + 
+					   "  ) = 0) \r\n" + 
 					   "}";
 		// Esegue la QUERY
 		System.out.println(build);
@@ -1107,6 +1107,26 @@ public class SparqlQueries {
 				"				      BIND((xsd:integer(?currentFrameId) - xsd:integer(?lastSeenFrameId)) AS ?groupOldness) .	\r\n" + 
 				"				      FILTER(?groupOldness <= ?oldGroupThreshold)    	\r\n" + 
 				"				  }\r\n";
+		// Esegue la QUERY
+		Query sparql = QueryFactory.create(build);
+		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, graph);
+		ResultSet results = vqe.execSelect();
+		ResultSetRewindable rewindableResults = ResultSetFactory.copyResults(results);
+		vqe.close();
+		//ResultSetFormatter.out(System.out, rewindableResults);
+		return rewindableResults;
+	}
+	
+	public static ResultSetRewindable getSpeed(VirtGraph graph, Point prec, Point post) {
+		String build = "PREFIX bif:<bif:>\r\n" + 
+				"PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\r\n" + 
+				"\r\n" + 
+				"SELECT ?avgSpeed\r\n" + 
+				"WHERE {\r\n" + 
+				"	BIND (bif:sqrt(bif:power(("+prec.x+"-"+post.x+"),2)+bif:power(("+prec.y+"-"+post.y+"),2)) AS ?dist) .\r\n" + 
+				"	BIND (xsd:float(0.1428) AS ?time) .\r\n" + 
+				"	BIND ((xsd:float(?dist)/xsd:float(?time)) AS ?avgSpeed)\r\n" + 
+				"}";
 		// Esegue la QUERY
 		Query sparql = QueryFactory.create(build);
 		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, graph);

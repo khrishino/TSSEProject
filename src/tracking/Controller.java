@@ -1495,7 +1495,7 @@ public class Controller implements ActionListener, MouseListener {
 
 		case SparqlQueries.QUERY_14:
 			string.append("Le persone sospette che si muovono ad una velocità  massima superiore a " + speedTreshold
-					+ " pixelx/frame" + " (effettuando cambi di direzione) sono:\n\n");
+					+ " pixel/frame" + " (effettuando cambi di direzione) sono:\n\n");
 			while (results.hasNext()) {
 				qs = results.nextSolution();
 				string.append("la persona: " + qs.get("ID_Persona").asLiteral().getInt() + " con velocità : "

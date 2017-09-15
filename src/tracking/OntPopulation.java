@@ -368,7 +368,14 @@ public class OntPopulation {
 
 			// Imposto i valori per le proprietà del blob
 			direction = Functions.getDirection(prec, post);
-			speed = Functions.Speed(prec, post);
+			
+			// Ottengo la average speed dai punti prec e post
+			ResultSetRewindable rs = SparqlQueries.getSpeed(graph, prec, post);
+			while(rs.hasNext()) {
+				QuerySolution qs = rs.nextSolution();
+				speed = qs.get("avgSpeed").asLiteral().getFloat();
+			}
+			
 			time = (float) numPoints * 0.14f;
 
 			// Popolo le hash map per la gestione dei cambi di direzione / frame di stessa
@@ -545,17 +552,14 @@ public class OntPopulation {
 						
 						int numGroups = 1;
 						while(r.hasNext()) {
-							System.out.println("Sono entrato");
 							QuerySolution rs = r.nextSolution();
 							numGroups = rs.get("numGroups").asLiteral().getInt();
 						}
 						
-						System.out.println("NumGroups: " + numGroups);
 						if(numGroups == 0) {
+							
 							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Group");
 							
-							// System.out.println("Creato il gruppo "+newGroup.getLocalName()+" con le
-							// persone "+individ1.getLocalName()+" "+individ2.getLocalName());
 							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://xmlns.com/foaf/0.1/member", NS + individ1);
 							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://xmlns.com/foaf/0.1/member", NS + individ2);
 	
@@ -610,7 +614,6 @@ public class OntPopulation {
 								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "true");
 							else 
 								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "false");
-							
 							groupId++;
 						}
 					}
