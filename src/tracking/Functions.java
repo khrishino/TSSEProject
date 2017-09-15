@@ -79,25 +79,6 @@ public class Functions {
 
 	}
 
-	/*
-	 * Per il calcolo della velocità è stato fatto questo ragionamento: - siccome il
-	 * FrameRate è di 7 Frame per secondo, vuol dire che tra un Frame e l'altro
-	 * passa un tempo pari a circa 0,14 secondi (1/7); - per la distanza invece,
-	 * bisogna tener conto che essa deve essere espressa in metri, mentre tale
-	 * distanza è ottenuta in pixel, pertanto, sapendo che un metro è uguale a circa
-	 * 3779 pixels, posso calcolare la distanza in metri attraverso la formula
-	 * inversa; Pertanto, dividendo la distanza rispetto al tempo, è possibile
-	 * ottenere la velocità
-	 */
-	public static float Speed(Point CenterPre, Point CenterPost) {
-		// Distanza in pixel
-		float distance = (float) (CenterPost.distance(CenterPre));
-		float distanceInMeters = distance / 3779;
-
-		float speed = (float) (distanceInMeters / 0.14);
-		return speed;
-	}
-
 	public static float Time(float time) {
 		return time + 0.14f;
 	}
