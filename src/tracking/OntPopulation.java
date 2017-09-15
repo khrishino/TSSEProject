@@ -17,6 +17,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.util.iterator.ExtendedIterator;
 
@@ -98,7 +99,7 @@ public class OntPopulation {
 
 		/*
 		 * Definisco un rettangolo che tornerà utile per il controllo dell'intersezione
-		 * di un BoundingBox con una specifia area
+		 * di un BoundingBox con una specifica area
 		 */
 		int width = topRight.x - topLeft.x;
 		int height = bottomLeft.y - topLeft.y;
@@ -208,48 +209,6 @@ public class OntPopulation {
 			perspective = 3;
 		}
 		return perspective;
-	}
-
-	public boolean sameDirection(String direction1, String direction2) {
-		boolean same = false;
-
-		if (direction1.equals("north")) {
-			if (direction2.equals("nwest") || direction2.equals("nord") || (direction2.equals("nest"))) {
-				same = true;
-			}
-		} else if (direction1.equals("nest")) {
-			if (direction2.equals("north") || direction2.equals("nest") || (direction2.equals("est"))) {
-				same = true;
-			}
-		} else if (direction1.equals("est")) {
-			if (direction2.equals("nest") || direction2.equals("est") || (direction2.equals("sest"))) {
-				same = true;
-			}
-		} else if (direction1.equals("sest")) {
-			if (direction2.equals("est") || direction2.equals("sest") || (direction2.equals("south"))) {
-				same = true;
-			}
-		} else if (direction1.equals("south")) {
-			if (direction2.equals("sest") || direction2.equals("south") || (direction2.equals("swest"))) {
-				same = true;
-			}
-		} else if (direction1.equals("swest")) {
-			if (direction2.equals("south") || direction2.equals("swest") || (direction2.equals("west"))) {
-				same = true;
-			}
-		} else if (direction1.equals("west")) {
-			if (direction2.equals("swest") || direction2.equals("west") || (direction2.equals("nwest"))) {
-				same = true;
-			}
-		} else if (direction1.equals("nwest")) {
-			if (direction2.equals("west") || direction2.equals("nwest") || (direction2.equals("north"))) {
-				same = true;
-			}
-		} else if (direction1.equals("stopped")) {
-			same = true;
-		}
-
-		return same;
 	}
 
 	public void createBlob(String individual_id, String[] txtRowInfo, String idFrame) {
@@ -522,9 +481,9 @@ public class OntPopulation {
 		String build, direction1 = null, direction2 = null, bRV_x_st, bLV_x_st, bLV_y_st, frameId_st, currentMember,
 				last_seen_frame_sub = null, first_seen_frame_sub = null, dir2 = null, bRV = null, bLV = null,
 				dir1 = null, last_seen_frame_st = null, first_seen_frame_st = null;
-		int x1, y1, x2 = 0, y2 = 0;
+		int x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 		String currentGroup, str;
-		boolean sameDirection, existingGroup, containFirstPerson, containSecondPerson, i1_isProbablyAGroup = false,
+		boolean sameDirection = false, existingGroup, containFirstPerson, containSecondPerson, i1_isProbablyAGroup = false,
 				i2_isProbablyAGroup = false;
 		int perspective1, perspective2, last_seen_frame = 0, first_seen_frame = 0;
 		Iterator<String> groupIt;
@@ -543,180 +502,40 @@ public class OntPopulation {
 			for (String individ2 : peopleOfAFrame) { // Ciclo sulle persone
 				// Per le coppie che non includono la stessa persona
 				if (individ1 != null && individ2 != null && !individ1.equals(individ2)) {
-
-					// Ottengo il blob dalla persona
-					Node s1 = NodeFactory.createURI(NS + individ1);
-					Node p1 = NodeFactory.createURI(NS + "blobMatch");
-					iter = graph.find(s1, p1, Node.ANY);
-
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						blob = t.getObject();
+					// Ottengo il punto centrale (centro piedi) dell'individuo 1 e la sua direzione
+					ResultSetRewindable r = SparqlQueries.getFootCenterAndDir(graph, frame, NS + individ1);
+					while(r.hasNext()) {
+						QuerySolution rs = r.nextSolution();
+						direction1 = rs.get("dirLab").asLiteral().getString();
+						x1 = rs.get("x").asLiteral().getInt();
+						y1 = rs.get("y").asLiteral().getInt();
 					}
 					
-					// Ottengo la direzione della persona
-					Node p2 = NodeFactory.createURI(NS + "hasDirection");
-					iter = graph.find(blob, p2, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						dir1 = t.getObject().toString();
+					// Se è null l'individuo esiste nel txt ma non è stato aggiunto con la createBlob nel grafo perché non rispetta i vincoli.
+					// Dunque si ignora e si passa avanti col break.
+					if(direction1 == null)
+						break;
+					
+					// Ottengo il punto centrale (centro piedi) dell'individuo 2 e la sua direzione
+					r = SparqlQueries.getFootCenterAndDir(graph, frame, NS + individ2);
+					while(r.hasNext()) {
+						QuerySolution rs = r.nextSolution();
+						direction2 = rs.get("dirLab").asLiteral().getString();
+						x2 = rs.get("x").asLiteral().getInt();
+						y2 = rs.get("y").asLiteral().getInt();
 					}
+					
+					// Se è null l'individuo esiste nel txt ma non è stato aggiunto con la createBlob nel grafo perché non rispetta i vincoli.
+					// Dunque si ignora e si passa avanti col break.
+					if(direction2 == null)
+						break;
 
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + dir1
-							+ "> <http://www.w3.org/2000/01/rdf-schema#label> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						direct1 = rs.get("o");
+					// Controllo se i due blob hanno la stessa direzione
+					r = SparqlQueries.areSameDirections(graph, direction1, direction2);
+					while(r.hasNext()) {
+						QuerySolution rs = r.nextSolution();
+						sameDirection = "1".equals(rs.get("res").asLiteral().getString());
 					}
-					direction1 = direct1.asLiteral().toString();
-
-					// Ottengo il bounding box dal blob
-					Node p3 = NodeFactory.createURI(NS + "hasBoundingBox");
-					iter = graph.find(blob, p3, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						boundingBox = t.getObject();
-					}
-
-					// Ottengo le coordinate del centro dei piedi della persona
-					Node p4 = NodeFactory.createURI(NS + "bottomLeftVertex");
-					iter = graph.find(boundingBox, p4, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						bLV = t.getObject().toString();
-					}
-
-					Node p5 = NodeFactory.createURI(NS + "bottomRightVertex");
-					iter = graph.find(boundingBox, p5, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						bRV = t.getObject().toString();
-					}
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bLV + "> <" + NS + "x> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bLV_x = rs.get("o");
-					}
-					bLV_x_st = bLV_x.asLiteral().toString();
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bRV + "> <" + NS + "x> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bRV_x = rs.get("o");
-					}
-					bRV_x_st = bRV_x.asLiteral().toString();
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bLV + "> <" + NS + "y> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bLV_y = rs.get("o");
-					}
-					bLV_y_st = bLV_y.asLiteral().toString();
-
-					x1 = Math.round((Integer.parseInt(bLV_x_st) + Integer.parseInt(bRV_x_st)) / 2);
-					y1 = Integer.parseInt(bLV_y_st);
-					blob = null;
-					boundingBox = null;
-					bLV = null;
-					bLV = null;
-
-					// Ottengo il blob dalla persona
-					Node s2 = NodeFactory.createURI(NS + individ2);
-					Node p9 = NodeFactory.createURI(NS + "blobMatch");
-					iter = graph.find(s2, p9, Node.ANY);
-
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						blob = t.getObject();
-					}
-
-					// Ottendgo la direzione della persona
-					Node p10 = NodeFactory.createURI(NS + "hasDirection");
-					iter = graph.find(blob, p10, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						dir2 = t.getObject().toString();
-					}
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + dir2
-							+ "> <http://www.w3.org/2000/01/rdf-schema#label> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						direct2 = rs.get("o");
-					}
-					direction2 = direct2.asLiteral().toString();
-
-					// Ottengo il bounding box dal blob
-					Node p11 = NodeFactory.createURI(NS + "hasBoundingBox");
-					iter = graph.find(blob, p11, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						boundingBox = t.getObject();
-					}
-
-					// Ottengo le coordinate del centro dei piedi della persona
-					Node p12 = NodeFactory.createURI(NS + "bottomLeftVertex");
-					iter = graph.find(boundingBox, p12, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						bLV = t.getObject().toString();
-					}
-
-					Node p13 = NodeFactory.createURI(NS + "bottomRightVertex");
-					iter = graph.find(boundingBox, p13, Node.ANY);
-					for (; iter.hasNext();) {
-						t = (Triple) iter.next();
-						bRV = t.getObject().toString();
-					}
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bLV + "> <" + NS + "x> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bLV_x = rs.get("o");
-					}
-					bLV_x_st = bLV_x.asLiteral().toString();
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bRV + "> <" + NS + "x> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bRV_x = rs.get("o");
-					}
-					bRV_x_st = bRV_x.asLiteral().toString();
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + bLV + "> <" + NS + "y> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						bLV_y = rs.get("o");
-					}
-					bLV_y_st = bLV_y.asLiteral().toString();
-
-					x2 = Math.round((Integer.parseInt(bLV_x_st) + Integer.parseInt(bRV_x_st)) / 2);
-					y2 = Integer.parseInt(bLV_y_st);
 
 					// Calcolo la perspective di riferimento delle due persone
 					perspective1 = getPerspectiveAreaByBottomY(y1);
@@ -730,141 +549,21 @@ public class OntPopulation {
 							(xGropuThreshold * wFactor[perspective1] + xGropuThreshold * wFactor[perspective2]) / 2);
 					int threshY = Math.round(
 							(yGropuThreshold * hFactor[perspective1] + yGropuThreshold * hFactor[perspective2]) / 2);
-
-					build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + frame + "> <" + NS + "id> ?o }";
-					vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-					results = vqe.execSelect();
-					while (results.hasNext()) {
-						QuerySolution rs = results.nextSolution();
-						Node_frameId = rs.get("o");
-					}
-					frameId_st = Node_frameId.asLiteral().toString();
-					int frameId = Integer.parseInt(frameId_st);
-
-					if (frameId > 64 && frameId < 89 && ((individ1.equals("Person1") && individ2.equals("Person4"))
-							|| (individ1.equals("Person4") && individ2.equals("Person1")))) {
-						// System.out.println(individ1.getLocalName()+" "+individ2.getLocalName());
-						// System.out.println("perspective "+perspective1+" "+perspective2);
-						// System.out.println("soglie "+threshX+" "+threshY);
-						// System.out.println("x1 e y1 "+x1+" "+y1);
-						// System.out.println("x2 e y2 "+x2+" "+y2);
-						// System.out.println("distanze in x e y "+Math.abs(x1-x2)+" "+Math.abs(y1-y2));
-						// System.out.println("direzioni "+direction1+" "+direction2);
-					}
-
-					// Controllo se i due blob hanno la stessa direzione
-					sameDirection = sameDirection(direction1, direction2);
-
-					if (sameDirection && (Math.abs(x1 - x2) <= threshX) && (Math.abs(y1 - y2) <= threshY)) { // Da
-																												// considerare
-																												// gruppo
-						existingGroup = false;
-						groupIt = groups.iterator();
-
-						// Scorro tutti i gruppi esistenti
-						while (groupIt.hasNext() && !existingGroup) {
-							currentGroup = groupIt.next();
-							containFirstPerson = false;
-							containSecondPerson = false;
-
-							Node s18 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
-							Node p18 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/member");
-							memberIt = graph.find(s18, p18, Node.ANY);
-
-							// Controllo se il generico gruppo esistente contiene già le due persone in
-							// esame
-							while (memberIt.hasNext()) {
-								currentMember_triple = (Triple) memberIt.next();
-								currentMember = currentMember_triple.getObject().toString();
-								currentMember = currentMember.substring(currentMember.indexOf("#") + 1);
-
-								if (currentMember.equals(individ1)) {
-									containFirstPerson = true;
-								} else if (currentMember.equals(individ2)) {
-									containSecondPerson = true;
-								}
-							}
-							// Se il gruppo non è più vecchio di un certo numero di frame
-							Node s19 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
-							Node p19 = NodeFactory.createURI(NS + "lastSeenAt");
-							iter = graph.find(s19, p19, Node.ANY);
-							for (; iter.hasNext();) {
-								t = (Triple) iter.next();
-								last_seen_frame_sub = t.getObject().toString();
-							}
-
-							build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + last_seen_frame_sub + "> <" + NS
-									+ "id> ?o }";
-							vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-							results = vqe.execSelect();
-							while (results.hasNext()) {
-								QuerySolution rs = results.nextSolution();
-								Node_last_seen = rs.get("o");
-							}
-							if (Node_last_seen != null) {
-								last_seen_frame_st = Node_last_seen.asLiteral().toString();
-								last_seen_frame = Integer.parseInt(last_seen_frame_st);
-							}
-							groupOldness = frameId - last_seen_frame;
-
-							// Se le contiene allora aggiorno solo la proprietà "lastSeenAt"
-							if (groupOldness <= oldGroupThreshold && containFirstPerson && containSecondPerson) {
-								Node s201 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
-								Node p201 = NodeFactory.createURI(NS + "lastSeenAt");
-								iter = graph.find(s201, p201, Node.ANY);
-								for (; iter.hasNext();) {
-									t = (Triple) iter.next();
-									graph.delete(t);
-								}
-								
-								addTriple("http://xmlns.com/foaf/0.1/" + currentGroup, NS + "lastSeenAt", frame);
-								
-								Node s22 = NodeFactory.createURI("http://xmlns.com/foaf/0.1/" + currentGroup);
-								Node p22 = NodeFactory.createURI(NS + "firstSeenAt");
-								iter = graph.find(s22, p22, Node.ANY);
-								for (; iter.hasNext();) {
-									t = (Triple) iter.next();
-									first_seen_frame_sub = t.getObject().toString();
-								}
-
-								build = "SELECT * FROM <" + GRAPH + "> WHERE { <" + first_seen_frame_sub + "> <" + NS
-										+ "id> ?o }";
-								vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-
-								results = vqe.execSelect();
-								while (results.hasNext()) {
-									QuerySolution rs = results.nextSolution();
-									Node_first_seen = rs.get("o");
-								}
-								if (Node_first_seen != null) {
-									first_seen_frame_st = Node_first_seen.asLiteral().toString();
-									first_seen_frame = Integer.parseInt(first_seen_frame_st);
-								}
-								groupSince = last_seen_frame - first_seen_frame + 1;
-
-								build = "SELECT * FROM <" + GRAPH + "> WHERE { <http://xmlns.com/foaf/0.1/"
-										+ currentGroup + "> <" + NS + "groupSince> ?o }";
-								vqe = VirtuosoQueryExecutionFactory.create(build, graph);
-								results = vqe.execSelect();
-								while (results.hasNext()) {
-									QuerySolution res = results.nextSolution();
-									String obj = res.get("o").asLiteral().toString();
-									str = "DELETE FROM GRAPH <" + GRAPH + "> { <http://xmlns.com/foaf/0.1/"
-											+ currentGroup + "> <" + NS + "groupSince> '" + obj + "' }";
-									vur = VirtuosoUpdateFactory.create(str, graph);
-									vur.exec();
-								}
-								performInsert("http://xmlns.com/foaf/0.1/" + currentGroup, NS + "groupSince", Integer.toString(groupSince));
-								existingGroup = true;
-								// System.out.println("Modificato il gruppo "+currentGroup.getLocalName()+" con
-								// le persone "+individ1.getLocalName()+" "+individ2.getLocalName());
-							}
+					
+					// Gruppo Esistente
+					if (sameDirection && (Math.abs(x1 - x2) <= threshX) && (Math.abs(y1 - y2) <= threshY)) {
+						SparqlQueries.updateGroups(graph, frame, NS + individ1, NS + individ2);
+						r = SparqlQueries.countGroups(graph, frame, NS + individ1, NS + individ2);	
+						
+						int numGroups = 999;
+						while(r.hasNext()) {
+							System.out.println("Sono entrato");
+							QuerySolution rs = r.nextSolution();
+							numGroups = rs.get("numGroups").asLiteral().getInt();
 						}
-
-						// Se il gruppo formato dalla coppia di persone in esame non esiste allora lo creo
-						if (!existingGroup) {
+						
+						System.out.println("NumGroups: " + numGroups);
+						if(numGroups == 0 && numGroups != 999) {
 							addTriple("http://xmlns.com/foaf/0.1/" + "Group" + groupId, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://xmlns.com/foaf/0.1/Group");
 							
 							// System.out.println("Creato il gruppo "+newGroup.getLocalName()+" con le
@@ -925,6 +624,7 @@ public class OntPopulation {
 								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "true");
 							else 
 								performInsert("http://xmlns.com/foaf/0.1/Group" + groupId, NS + "groupSinceEntry", "false");
+							
 							groupId++;
 						}
 					}
@@ -1360,14 +1060,13 @@ public class OntPopulation {
 		Node s = NodeFactory.createURI(subjUri);
 		Node p = NodeFactory.createURI(predUri);
 		Node o = NodeFactory.createURI(objUri);
+
 		graph.add(new Triple(s, p, o));
 	}
 	
 	private void performInsert(String subj, String pred, String obj) {
 		String s = "INSERT INTO GRAPH <" + GRAPH + "> { <" + subj + "> <" + pred + "> '"
 				+ obj + "'}";
-		//if(pred.contains("groupSinceEntry"))
-			//System.out.println(s + " SOTTO");
 		VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(s, graph);
 		vur.exec();
 	}

@@ -21,6 +21,8 @@ import org.apache.jena.sparql.resultset.ResultSetMem;
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
+import virtuoso.jena.driver.VirtuosoUpdateFactory;
+import virtuoso.jena.driver.VirtuosoUpdateRequest;
 
 @SuppressWarnings("unused")
 public class SparqlQueries {
@@ -37,17 +39,6 @@ public class SparqlQueries {
 	public static final int QUERY_7 = 7;
 	public static final int QUERY_8 = 8;
 	public static final int QUERY_9 = 9;
-	public static final String DESCRIPTION_1 = "DESCRIZIONE QUERY 1:\n\nDato l'ID di una persona estrazione della traiettoria percorsa nella scena.";
-	public static final String DESCRIPTION_2 = "DESCRIZIONE QUERY 2:\n\nRestituzione delle persone o dei gruppi che transitano in una certa area.";
-	public static final String DESCRIPTION_3 = "DESCRIZIONE QUERY 3:\n\nRestituzione delle persone che si sono incontrate (per più di 1s).";
-	public static final String DESCRIPTION_4 = "DESCRIZIONE QUERY 4:\n\nRestituzione delle persone che sono rimaste ferme nella scena per più di un dato numero di secondi.";
-	public static final String DESCRIPTION_5 = "DESCRIZIONE QUERY 5:\n\nDato l'ID di una persona e una soglia temporale restituzione delle persone che sono state presenti nella scena per un tempo superiore alla soglia.\n- Indicando come ID \"-1\" la query è eseguita su tutte le persone;\n- Indicando come soglia temporale \"-1\" la query è eseguita senza tener conto della soglia;\n";
-	public static final String DESCRIPTION_6 = "DESCRIZIONE QUERY 6:\n\nData una velocità in m/s estrazione di tutte le persone che durante la loro presenza nella scena hanno mantenuto una velocità media superiore a tale soglia.\n- se come velocità limite si indica \"0\" vengono restituite tutte le persone che si sono mosse all'interno della scena, vengono cosi esclusi individui fittizi nati da split di altri individui nelle aree di occlusione;";
-	public static final String DESCRIPTION_7 = "DESCRIZIONE QUERY 7:\n\nDato in input un colore dominante tra rosso, blu e nero, restituzione delle persone che hanno tale colore dominante al primo frame al quale sono state osservate nella scena.";
-	public static final String DESCRIPTION_8 = "DESCRIZIONE QUERY 8:\n\nDato l'ID di una persona estrazione dei suoi cambi di direzione all'interno dela scena.";
-	public static final String DESCRIPTION_9 = "DESCRIZIONE QUERY 9:\n\nRestituzione dei gruppi individuati all'interno della scena.";
-	
-	// Query fatte da noi
 	public static final int QUERY_10 = 10;
 	public static final int QUERY_11 = 11;
 	public static final int QUERY_12 = 12;
@@ -56,11 +47,20 @@ public class SparqlQueries {
 	public static final int QUERY_15 = 15;
 	public static final int QUERY_16 = 16;
 	public static final int QUERY_17 = 17;
+	public static final String DESCRIPTION_1 = "DESCRIZIONE QUERY 1:\n\nDato l'ID di una persona estrazione della traiettoria percorsa nella scena.";
+	public static final String DESCRIPTION_2 = "DESCRIZIONE QUERY 2:\n\nRestituzione delle persone o dei gruppi che transitano in una certa area.";
+	public static final String DESCRIPTION_3 = "DESCRIZIONE QUERY 3:\n\nRestituzione delle persone che si sono incontrate (per più di 1 s).";
+	public static final String DESCRIPTION_4 = "DESCRIZIONE QUERY 4:\n\nRestituzione delle persone che sono rimaste ferme nella scena per più di un dato numero di secondi.";
+	public static final String DESCRIPTION_5 = "DESCRIZIONE QUERY 5:\n\nDato l'ID di una persona e una soglia temporale restituzione delle persone che sono state presenti nella scena per un tempo superiore alla soglia.\n- Indicando come ID \"-1\" la query è eseguita su tutte le persone;\n- Indicando come soglia temporale \"-1\" la query è eseguita senza tener conto della soglia;\n";
+	public static final String DESCRIPTION_6 = "DESCRIZIONE QUERY 6:\n\nData una velocità in m/s estrazione di tutte le persone che durante la loro presenza nella scena hanno mantenuto una velocità media superiore a tale soglia.\n- se come velocità limite si indica \"0\" vengono restituite tutte le persone che si sono mosse all'interno della scena, vengono cosi esclusi individui fittizi nati da split di altri individui nelle aree di occlusione;";
+	public static final String DESCRIPTION_7 = "DESCRIZIONE QUERY 7:\n\nDato in input un colore dominante tra rosso, blu e nero, restituzione delle persone che hanno tale colore dominante al primo frame al quale sono state osservate nella scena.";
+	public static final String DESCRIPTION_8 = "DESCRIZIONE QUERY 8:\n\nDato l'ID di una persona estrazione dei suoi cambi di direzione all'interno dela scena.";
+	public static final String DESCRIPTION_9 = "DESCRIZIONE QUERY 9:\n\nRestituzione dei gruppi individuati all'interno della scena.";
 	public static final String DESCRIPTION_10 = "DESCRIZIONE QUERY 10:\n\nPersone che cambiano direzione in un'area selezionata.";
 	public static final String DESCRIPTION_11 = "DESCRIZIONE QUERY 11:\n\nPersone che passano più volte in una stessa area.";
 	public static final String DESCRIPTION_12 = "DESCRIZIONE QUERY 12:\n\nRestituisce gli id delle persone che sostano in una specifica area, data una soglia di secondi.";
 	public static final String DESCRIPTION_13 = "DESCRIZIONE QUERY 13:\n\nPersone che incontrano altre persone in una determinata area.";
-	public static final String DESCRIPTION_14 = "DESCRIZIONE QUERY 14:\n\nCalcola la velocità massima in cui si muovono le persone nella scena.\n "
+	public static final String DESCRIPTION_14 = "DESCRIZIONE QUERY 14:\n\nCalcola la velocità massima in cui si muovono le persone nella scena.\n"
 												+"Se supera una determinata soglia (40 PPF) e la persona in questione ha effettuato dei cambi di "
 					 							+ "direzione, viene segnalata come sospetta.";
 	public static final String DESCRIPTION_15 = "DESCRIZIONE QUERY 15:\n\nPersone che seguono altre persone all'interno della scena.";
@@ -447,7 +447,7 @@ public class SparqlQueries {
 	}
 	
 	/**
-	 * Cambi di direzione di una persona in unâ€™area selezionata.
+	 * Cambi di direzione di una persona in un'area selezionata.
 	 * @param base
 	 * @param speedTreshold
 	 * @return
@@ -800,7 +800,7 @@ public class SparqlQueries {
 									+ "}"
 									+ "ORDER BY (xsd:integer(?frameId))\n";
 		
-		 // Esegue la QUERY
+		// Esegue la QUERY
 		Query sparql = QueryFactory.create(build);
 		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 		ResultSet results = vqe.execSelect();
@@ -898,5 +898,218 @@ public class SparqlQueries {
 			rectangles.add(getPersonAtFrameRectangle(graph, personId, frameId));
 		}
 		return rectangles;
+	}
+	
+	public static ResultSetRewindable getFootCenterAndDir(VirtGraph graph, String frame, String person) {
+		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
+	                   "PREFIX bif:<bif:> \n" +
+	                   "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n" +
+					   "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n" +
+				"SELECT ?dirLab ?x ?y \n" + 
+				"FROM <" + GRAPH + "> \n" + 
+				"WHERE\n" + 
+				"{\n" + 
+				"   #Ottengo il blob dalla persona ad un determinato frame\n" + 
+				"   ?blob tracking:seenAtFrame " + "<" + frame + ">" + ".\n" + 
+				"   " + "<" + person + ">" + " tracking:blobMatch ?blob .\n" + 
+				"   \n" + 
+				"   #Ottengo la direzione e il BoundingBox della persona\n" + 
+				"   ?blob tracking:hasDirection ?dir ;\n" + 
+				"          tracking:hasBoundingBox ?bb .\n" + 
+				"   ?dir <http://www.w3.org/2000/01/rdf-schema#label> ?dirLab .\n" +
+				"   \n" + 
+				"   #Ottengo le coordinate del centro dei piedi della persona\n" + 
+				"   ?bb tracking:bottomLeftVertex ?blv ;\n" + 
+				"        tracking:bottomRightVertex ?brv .\n" + 
+				"   \n" + 
+				"   #Ottengo le ascisse dei punti\n" + 
+				"   ?blv tracking:x ?blv_x ;\n" + 
+				"        tracking:y ?blv_y .\n" + 
+				"   ?brv tracking:x ?brv_x .\n" + 
+				"\n" + 
+				"   #Coordinate centro piedi persona\n" + 
+				"   BIND(xsd:integer(bif:round((xsd:integer(?blv_x) + xsd:integer(?brv_x))/2)) AS ?x) .\n" + 
+				"   BIND(xsd:integer(?blv_y) AS ?y) .\n" + 
+				"}";
+		
+		// Esegue la QUERY
+		Query sparql = QueryFactory.create(build);
+		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, graph);
+		ResultSet results = vqe.execSelect();
+		ResultSetRewindable rewindableResults = ResultSetFactory.copyResults(results);
+		vqe.close();
+		//ResultSetFormatter.out(System.out, rewindableResults);
+		return rewindableResults;
+	}
+	
+	public static ResultSetRewindable areSameDirections(VirtGraph graph, String dir1, String dir2) {
+		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
+	                   "PREFIX bif:<bif:> \n" +
+	                   "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n" +
+					   "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n" +
+				"SELECT ?res\r\n" +
+				"FROM <" + GRAPH + "> \n" +
+				"WHERE{\r\n" + 
+				"   BIND(xsd:string(\"north\") AS ?north) .\n" + 
+				"   BIND(xsd:string(\"nest\") AS ?nest) .\n" + 
+				"   BIND(xsd:string(\"nwest\") AS ?nwest) .\n" + 
+				"   BIND(xsd:string(\"south\") AS ?south) .\n" + 
+				"   BIND(xsd:string(\"sest\") AS ?sest) .\n" + 
+				"   BIND(xsd:string(\"swest\") AS ?swest) .\n" + 
+				"   BIND(xsd:string(\"est\") AS ?est) .\n" + 
+				"   BIND(xsd:string(\"west\") AS ?west) .\n" + 
+				"   BIND(xsd:string(\"stopped\") AS ?stopped) .\n" + 
+				"\n" + 
+				"   BIND(xsd:string(\"" + dir1 + "\") AS ?dir1) .\r\n" + 
+				"   BIND(xsd:string(\"" + dir2 + "\") AS ?dir2) .\r\n" + 
+				"\r\n" + 
+				"   BIND((\r\n" + 
+				"   IF(?dir1=?north, (?dir2=?nest || ?dir2=?nwest || ?dir2=?north), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?south, (?dir2=?sest || ?dir2=?south || ?dir2=?swest), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?nest, (?dir2=?north || ?dir2=?nest || ?dir2=?est), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?est, (?dir2=?sest || ?dir2=?nest || ?dir2=?est), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?sest, (?dir2=?south || ?dir2=?est || ?dir2=?sest), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?swest, (?dir2=?south || ?dir2=?swest || ?dir2=?west), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?west, (?dir2=?swest || ?dir2=?west || ?dir2=?nwest), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?nwest, (?dir2=?west || ?dir2=?nwest || ?dir2=?north), xsd:integer(0))\r\n" + 
+				"   ||\r\n" + 
+				"   IF(?dir1=?stopped, xsd:integer(1), xsd:integer(0))\r\n" + 
+				"   ) AS ?res)\r\n" + 
+				"}";
+		
+		// Esegue la QUERY
+		Query sparql = QueryFactory.create(build);
+		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, graph);
+		ResultSet results = vqe.execSelect();
+		ResultSetRewindable rewindableResults = ResultSetFactory.copyResults(results);
+		vqe.close();
+		//ResultSetFormatter.out(System.out, rewindableResults);
+		return rewindableResults;
+	}
+	
+	public static void updateGroups(VirtGraph graph, String frame, String person1, String person2) {
+		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
+	                   "PREFIX bif:<bif:> \n" +
+	                   "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n" +
+					   "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n" +
+				"WITH <" + GRAPH + ">\r\n" + 
+				"DELETE \r\n" + 
+				"{\r\n" + 
+				"   ?group tracking:lastSeenAt ?lastSeenFrame;\r\n" + 
+				"          tracking:groupSince ?oldGroupSince.\r\n" + 
+				"\r\n" + 
+				"}\r\n" + 
+				"INSERT \r\n" + 
+				"{\r\n" + 
+				"   ?group tracking:lastSeenAt ?currentFrame;\r\n" + 
+				"          tracking:groupSince ?groupSince.\r\n" + 
+				"}\r\n" + 
+				"WHERE\r\n" + 
+				"{\r\n" + 
+				"   BIND(xsd:integer(14) AS ?oldGroupThreshold) .\r\n" + 
+				"   BIND(" + "<" + frame + ">" + " AS ?currentFrame) .\r\n" + 
+				"\r\n" + 
+				"  ?group a foaf:Group;\r\n" + 
+				"          foaf:member " + "<" + person1 + ">" + "," + "<" + person2 + ">" + ";\r\n" + 
+				"          tracking:lastSeenAt ?lastSeenFrame;\r\n" + 
+				"          tracking:groupSince ?oldGroupSince .\r\n" + 
+				"\r\n" + 
+				"  ?lastSeenFrame tracking:id ?lastSeenFrameId .\r\n" + 
+				"  ?currentFrame tracking:id ?currentFrameId .\r\n" + 
+				"  BIND((xsd:integer(?currentFrameId) - xsd:integer(?lastSeenFrameId)) AS ?groupOldness) .\r\n" + 
+				"   \r\n" + 
+				"  ?firstSeenFrame ^tracking:firstSeenAt ?group ;\r\n" + 
+				"                   tracking:id ?firstSeenFrameId .\r\n" + 
+				"\r\n" + 
+				"  BIND(STR(xsd:integer(?lastSeenFrameId) - xsd:integer(?firstSeenFrameId) + 1) AS ?groupSince) . \r\n" + 
+				"  \r\n" + 
+				"  FILTER(?groupOldness <= ?oldGroupThreshold)\r\n" + 
+				"}\r\n" + 
+				"";
+		
+		// Esegue la QUERY	
+		VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(build, graph);
+		vur.exec();
+	}
+	
+	// NON FUNZIONA AL MOMENTO
+	public static void insertGroups(VirtGraph graph, String group, String frame, String person1, String person2, int groupId) {
+		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
+	                   "PREFIX bif:<bif:> \n" +
+	                   "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n" +
+					   "PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n" +
+					   "WITH <" + GRAPH + ">\r\n" + 
+					   "INSERT{\r\n" + 
+					   "     foaf:" + group +  " a foaf:Group ;\r\n" + 
+					   "                      foaf:member " + "<" + person1 + ">" + ";\r\n" + 
+					   "                      foaf:member " + "<" + person2 + ">" + ";\r\n" + 
+					   "                      tracking:id '"+ groupId + "' ;\r\n" + 
+					   "                      tracking:firstSeenAt " + "<" + frame + ">" + " ;\r\n" + 
+					   "                      tracking:lastSeenAt " + "<" + frame + ">" + " ;\r\n" + 
+					   "                      tracking:groupSince \"1\";\r\n" + 
+					   "					  tracking:groupSinceEntry ?isProbAGroup. \r\n" + 
+					   "}\r\n" + 
+					   "WHERE{  \r\n" + 
+					   "<" + person1 + ">" + "tracking:isProbablyAGroup ?isProbablyAGroup1 .\r\n" + 
+					   "<" + person2 + ">" + "tracking:isProbablyAGroup ?isProbablyAGroup2 .\r\n" +
+					   "BIND(IF((?isProbablyAGroup1 = \"" + "true" + "\") && (?isProbablyAGroup2 = \""+ "true" + "\"), \"" + "true" + "\", \"" + "false" + "\")" + " AS ?isProbAGroup) . \n" +
+					   "  \r\n" + 
+					   "  FILTER ((\r\n" + 
+					   "  SELECT (COUNT(?group) AS ?numGroups)\r\n" + 
+					   "  WHERE {\r\n" + 
+					   "      BIND(xsd:integer(14) AS ?oldGroupThreshold) .\r\n" + 
+					   "      BIND(" + "<" + frame + ">" + " AS ?currentFrame) .\r\n" + 
+					   "\r\n" + 
+					   "      ?group a foaf:Group;\r\n" + 
+					   "            foaf:member " + "<" + person1 + ">"+ "," + "<" + person2 + ">" + ";\r\n" + 
+					   "            tracking:lastSeenAt ?lastSeenFrame .\r\n" + 
+					   "		  \r\n" + 
+					   "      ?lastSeenFrame tracking:id ?lastSeenFrameId .\r\n" + 
+					   "      ?currentFrame tracking:id ?currentFrameId .\r\n" + 
+					   "      BIND((xsd:integer(?currentFrameId) - xsd:integer(?lastSeenFrameId)) AS ?groupOldness) .	\r\n" + 
+					   "      FILTER(?groupOldness <= ?oldGroupThreshold)    	\r\n" + 
+					   "  }\r\n" + 
+					   "  GROUP BY ?numGroups ) = 0) \r\n" + 
+					   "}";
+		// Esegue la QUERY
+		System.out.println(build);
+		VirtuosoUpdateRequest vur = VirtuosoUpdateFactory.create(build, graph);
+		vur.exec();
+	}
+	
+	public static ResultSetRewindable countGroups(VirtGraph graph, String frame, String person1, String person2) {
+		String build = "PREFIX tracking:<http://mivia.unisa.it/videotracking/tracking.owl#>\n " + 
+                "PREFIX bif:<bif:> \n" +
+                "PREFIX xsd:<http://www.w3.org/2001/XMLSchema#>\n" +
+				"PREFIX foaf:<http://xmlns.com/foaf/0.1/>\n" +
+				"SELECT (COUNT(?group) AS ?numGroups)\r\n" + 
+				"				  WHERE {\r\n" + 
+				"				      BIND(xsd:integer(14) AS ?oldGroupThreshold) .\r\n" + 
+				"				      BIND(" + "<" + frame + ">" + "AS ?currentFrame) .\r\n" + 
+				"\r\n" + 
+				"				      ?group a foaf:Group;\r\n" + 
+				"				            foaf:member " + "<" + person1 + ">" + ", " + "<" + person2 + ">" + ";\r\n" + 
+				"				            tracking:lastSeenAt ?lastSeenFrame .\r\n" + 
+				"						  \r\n" + 
+				"				      ?lastSeenFrame tracking:id ?lastSeenFrameId .\r\n" + 
+				"				      ?currentFrame tracking:id ?currentFrameId .\r\n" + 
+				"				      BIND((xsd:integer(?currentFrameId) - xsd:integer(?lastSeenFrameId)) AS ?groupOldness) .	\r\n" + 
+				"				      FILTER(?groupOldness <= ?oldGroupThreshold)    	\r\n" + 
+				"				  }\r\n";
+		// Esegue la QUERY
+		Query sparql = QueryFactory.create(build);
+		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create(sparql, graph);
+		ResultSet results = vqe.execSelect();
+		ResultSetRewindable rewindableResults = ResultSetFactory.copyResults(results);
+		vqe.close();
+		//ResultSetFormatter.out(System.out, rewindableResults);
+		return rewindableResults;
 	}
 }

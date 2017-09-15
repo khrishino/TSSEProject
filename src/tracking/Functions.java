@@ -65,7 +65,7 @@ public class Functions {
 			if (angle == 90)
 				direction = "south";
 			if (angle == -90)
-				direction = "nord";
+				direction = "north";
 			if (angle > -90 && angle < 0)
 				direction = "nest";
 			if (angle > 0 && angle < 90)
@@ -95,7 +95,6 @@ public class Functions {
 		float distanceInMeters = distance / 3779;
 
 		float speed = (float) (distanceInMeters / 0.14);
-		System.out.println("VELOCITA': "+speed);
 		return speed;
 	}
 

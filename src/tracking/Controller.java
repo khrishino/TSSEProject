@@ -986,31 +986,31 @@ public class Controller implements ActionListener, MouseListener {
 			results = SparqlQueries.query17(graph);
 
 			// VISUAZIZZAZIONE DEI RISULTATI
-			if (results.hasNext() && results.next().get("ID_Persona") != null) {
-				if (view.getShowGraphicsState()) {
-					// Grafica
+			if (results.hasNext()) {
+				QuerySolution res = results.next();
+				if(res.get("personId1") != null && res.get("personId2") != null){
+					if (view.getShowGraphicsState()) {
+						// Grafica
+						results.reset();
+						personTrajectory = cuttedImages(results, SparqlQueries.QUERY_TYPE_ON_PERSON, 30,
+								MyPanel.DRAWING_TYPE_LINE_TRAJECTORY_WITH_ONLY_FIRST_LAST_SAMPLES);
+						view.drawImages(personTrajectory, MyPanel.DRAWING_TYPE_LINE_TRAJECTORY_WITH_ONLY_FIRST_LAST_SAMPLES,
+								null, 3);
+						view.repaint();
+						personTrajectory = null;
+						System.gc();
+					} else {
+						view.showBackgroundInPanel();
+						view.repaint();
+					}
+					// Testuale
 					results.reset();
-					personTrajectory = cuttedImages(results, SparqlQueries.QUERY_TYPE_ON_PERSON, 30,
-							MyPanel.DRAWING_TYPE_LINE_TRAJECTORY_WITH_ONLY_FIRST_LAST_SAMPLES);
-					view.drawImages(personTrajectory, MyPanel.DRAWING_TYPE_LINE_TRAJECTORY_WITH_ONLY_FIRST_LAST_SAMPLES,
-							null, 3);
-					view.repaint();
-					personTrajectory = null;
-					System.gc();
-				} else {
-					view.showBackgroundInPanel();
-					view.repaint();
+					stringResults = this.extractStringResult(results, SparqlQueries.QUERY_17, 0, 0, 0, 0, "");
+					view.showQueryResults(stringResults);
 				}
-				// Testuale
-				results.reset();
-				stringResults = this.extractStringResult(results, SparqlQueries.QUERY_17, 0, 0, 0, 0, "");
-				view.showQueryResults(stringResults);
-
 			}
-
 			view.setButtonsEnabling(true);
 			break;
-
 		}
 	}
 
